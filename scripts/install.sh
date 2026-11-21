@@ -2,7 +2,7 @@
 # VoltTray Linux CLI Installer
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/ZERO1zx1/VoltTray_app/main/scripts/install.sh | bash
-#   curl -fsSL https://raw.githubusercontent.com/ZERO1zx1/VoltTray_app/main/scripts/install.sh | bash -s -- --autostart --m220-udev
+#   curl -fsSL https://raw.githubusercontent.com/ZERO1zx1/VoltTray_app/main/scripts/install.sh | bash -s -- --from-source --autostart --m220-udev
 set -euo pipefail
 
 REPO="ZERO1zx1/VoltTray_app"
@@ -12,12 +12,17 @@ AUTOSTART=1
 M220_UDEV=0
 UNINSTALL=0
 DRY_RUN=0
+FROM_SOURCE=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --version)
       VERSION="${2:?Missing tag for --version}"
       shift 2
+      ;;
+    --from-source)
+      FROM_SOURCE=1
+      shift
       ;;
     --autostart)
       AUTOSTART=1
@@ -45,6 +50,7 @@ VoltTray Linux CLI Installer
 
 Options:
   --version <tag>   Install a specific release tag (default: latest)
+  --from-source     Clone and build native binary locally (requires git, node, npm, cargo)
   --autostart       Create XDG autostart entry (default)
   --no-autostart    Skip XDG autostart entry
   --m220-udev       Install interface-02 M220 udev rule (requires sudo)
@@ -67,29 +73,22 @@ APP_DIR="$DATA_DIR/volttray"
 TARGET_BIN="$APP_DIR/volttray"
 DESKTOP_FILE="$DATA_DIR/applications/$APP_ID.desktop"
 AUTOSTART_FILE="$CONFIG_DIR/autostart/volttray.desktop"
+ICON_128="$DATA_DIR/icons/hicolor/128x128/apps/volttray.png"
+ICON_512="$DATA_DIR/icons/hicolor/512x512/apps/volttray.png"
 
 log() { printf '[volttray] %s\n' "$*"; }
 
 if [[ "$UNINSTALL" -eq 1 ]]; then
   log "Uninstalling VoltTray..."
   if [[ "$DRY_RUN" -eq 1 ]]; then
-    log "[dry-run] Would remove: $APP_DIR, $BIN_DIR/volttray, $DESKTOP_FILE, $AUTOSTART_FILE"
+    log "[dry-run] Would remove: $APP_DIR, $BIN_DIR/volttray, $DESKTOP_FILE, $AUTOSTART_FILE, $ICON_128, $ICON_512"
     exit 0
   fi
   rm -rf "$APP_DIR"
-  rm -f "$BIN_DIR/volttray" "$DESKTOP_FILE" "$AUTOSTART_FILE"
+  rm -f "$BIN_DIR/volttray" "$DESKTOP_FILE" "$AUTOSTART_FILE" "$ICON_128" "$ICON_512"
   log "VoltTray removed."
   exit 0
 fi
-
-ARCH="$(uname -m)"
-case "$ARCH" in
-  x86_64|amd64) ASSET_PATTERN="AppImage" ;;
-  *)
-    echo "Unsupported Linux architecture for prebuilt binary: $ARCH. Build from source with: git clone https://github.com/$REPO && npm run tauri:build" >&2
-    exit 1
-    ;;
-esac
 
 if [[ "$VERSION" == "latest" ]]; then
   API_URL="https://api.github.com/repos/$REPO/releases/latest"
@@ -99,29 +98,123 @@ fi
 
 log "Target binary: $TARGET_BIN"
 if [[ "$DRY_RUN" -eq 1 ]]; then
-  log "[dry-run] Fetch release metadata from $API_URL"
-  log "[dry-run] Install AppImage to $TARGET_BIN and link $BIN_DIR/volttray"
+  if [[ "$FROM_SOURCE" -eq 1 ]]; then
+    log "[dry-run] Clone https://github.com/$REPO.git and build native binary via 'npm run tauri:build -- --no-bundle'"
+  else
+    log "[dry-run] Fetch release metadata from $API_URL (falls back to source build if no release is published)"
+  fi
+  log "[dry-run] Install binary to $TARGET_BIN and link $BIN_DIR/volttray"
   log "[dry-run] Write desktop entry $DESKTOP_FILE (autostart=$AUTOSTART, m220_udev=$M220_UDEV)"
   exit 0
 fi
 
-command -v curl >/dev/null 2>&1 || { echo "curl is required." >&2; exit 1; }
+command -v curl >/dev/null 2>&1 || { echo "[volttray] Error: curl is required." >&2; exit 1; }
 
-RELEASE_JSON="$(curl -fsSL -H 'Accept: application/vnd.github+json' "$API_URL")"
-DOWNLOAD_URL="$(printf '%s\n' "$RELEASE_JSON" | grep -oE 'https://[^"]+\.AppImage' | head -n 1 || true)"
+build_from_source() {
+  local missing=()
+  for tool in git node npm cargo; do
+    if ! command -v "$tool" >/dev/null 2>&1; then
+      missing+=("$tool")
+    fi
+  done
 
-if [[ -z "$DOWNLOAD_URL" ]]; then
-  echo "No .$ASSET_PATTERN release asset found at $API_URL. Build from source with 'npm run install:cli -- install --from-source'." >&2
-  exit 1
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    echo "" >&2
+    echo "[volttray] Cannot build from source because required tools are missing: ${missing[*]}" >&2
+    echo "[volttray] Option 1: Publish a v1.0.0 release on https://github.com/$REPO/releases (via git tag v1.0.0 && git push origin v1.0.0)." >&2
+    echo "[volttray] Option 2: Install build tools (e.g. on Arch: sudo pacman -S git nodejs npm rust webkit2gtk-4.1 libappindicator-gtk3 librsvg) and re-run with --from-source." >&2
+    exit 1
+  fi
+
+  local tmp_src
+  tmp_src="$(mktemp -d)"
+  trap 'rm -rf "$tmp_src"' EXIT
+
+  log "Cloning https://github.com/$REPO.git..."
+  git clone --depth 1 "https://github.com/$REPO.git" "$tmp_src/volttray"
+  cd "$tmp_src/volttray"
+
+  log "Installing npm dependencies..."
+  npm install --no-audit --no-fund
+
+  log "Building native VoltTray binary (this may take a few minutes on first compile)..."
+  npm run tauri:build -- --no-bundle
+
+  local built_bin="$tmp_src/volttray/src-tauri/target/release/volttray"
+  if [[ ! -x "$built_bin" ]]; then
+    echo "[volttray] Error: Expected built binary not found at $built_bin" >&2
+    exit 1
+  fi
+
+  mkdir -p "$APP_DIR" "$BIN_DIR" "$DATA_DIR/applications" "$(dirname "$ICON_128")" "$(dirname "$ICON_512")"
+  install -m 755 "$built_bin" "$TARGET_BIN.new"
+  mv -f "$TARGET_BIN.new" "$TARGET_BIN"
+  ln -sf "$TARGET_BIN" "$BIN_DIR/volttray"
+
+  if [[ -f "$tmp_src/volttray/src-tauri/icons/128x128.png" ]]; then
+    install -m 644 "$tmp_src/volttray/src-tauri/icons/128x128.png" "$ICON_128"
+  fi
+  if [[ -f "$tmp_src/volttray/src-tauri/icons/icon.png" ]]; then
+    install -m 644 "$tmp_src/volttray/src-tauri/icons/icon.png" "$ICON_512"
+  fi
+}
+
+install_from_release() {
+  local arch
+  arch="$(uname -m)"
+  case "$arch" in
+    x86_64|amd64) ;;
+    *)
+      log "No prebuilt Linux AppImage for architecture '$arch'; switching to source build..."
+      return 1
+      ;;
+  esac
+
+  local tmp_json http_code
+  tmp_json="$(mktemp)"
+  http_code="$(curl -sSL -H 'Accept: application/vnd.github+json' -H 'User-Agent: volttray-installer' -w '%{http_code}' -o "$tmp_json" "$API_URL" || true)"
+
+  if [[ "$http_code" != "200" ]]; then
+    rm -f "$tmp_json"
+    if [[ "$http_code" == "404" ]]; then
+      log "No published GitHub Release found yet at $REPO ($VERSION)."
+    else
+      log "GitHub Releases API returned HTTP $http_code."
+    fi
+    return 1
+  fi
+
+  local download_url
+  download_url="$(grep -oE 'https://[^"]+\.AppImage' "$tmp_json" | head -n 1 || true)"
+  rm -f "$tmp_json"
+
+  if [[ -z "$download_url" ]]; then
+    log "Published release '$VERSION' does not contain an .AppImage asset."
+    return 1
+  fi
+
+  mkdir -p "$APP_DIR" "$BIN_DIR" "$DATA_DIR/applications" "$(dirname "$ICON_128")" "$(dirname "$ICON_512")"
+  local tmp_bin="$TARGET_BIN.download"
+  log "Downloading $download_url..."
+  curl -fL --progress-bar "$download_url" -o "$tmp_bin"
+  chmod 755 "$tmp_bin"
+  mv -f "$tmp_bin" "$TARGET_BIN"
+  ln -sf "$TARGET_BIN" "$BIN_DIR/volttray"
+
+  # Fetch icons from repo so application menu shows the VoltTray icon
+  curl -fsSL "https://raw.githubusercontent.com/$REPO/main/src-tauri/icons/128x128.png" -o "$ICON_128" 2>/dev/null || true
+  curl -fsSL "https://raw.githubusercontent.com/$REPO/main/src-tauri/icons/icon.png" -o "$ICON_512" 2>/dev/null || true
+  return 0
+}
+
+if [[ "$FROM_SOURCE" -eq 1 ]]; then
+  build_from_source
+else
+  if ! install_from_release; then
+    log "Falling back to local source build..."
+    build_from_source
+  fi
 fi
-
-mkdir -p "$APP_DIR" "$BIN_DIR" "$DATA_DIR/applications"
-TMP_BIN="$TARGET_BIN.download"
-log "Downloading $DOWNLOAD_URL..."
-curl -fL --progress-bar "$DOWNLOAD_URL" -o "$TMP_BIN"
-chmod 755 "$TMP_BIN"
-mv -f "$TMP_BIN" "$TARGET_BIN"
-ln -sf "$TARGET_BIN" "$BIN_DIR/volttray"
 
 write_desktop() {
   cat <<EOF
@@ -158,4 +251,4 @@ if command -v update-desktop-database >/dev/null 2>&1; then
 fi
 
 log "Installed VoltTray to $TARGET_BIN"
-log "Run 'volttray' or launch VoltTray from your application menu."
+log "Run 'volttray' (ensure ~/.local/bin is in PATH) or launch VoltTray from your application menu."

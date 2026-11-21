@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -46,6 +47,6 @@ jobs:
           tagName: v__VERSION__
           releaseName: "VoltTray v__VERSION__"
           releaseBody: "Local-first, read-only system tray battery monitor for Windows and Linux."
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}

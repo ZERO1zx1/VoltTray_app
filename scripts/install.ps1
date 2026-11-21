@@ -46,7 +46,15 @@ if ($DryRun) {
 
 Write-Log "Querying GitHub Releases ($Version)..."
 $Headers = @{ "Accept" = "application/vnd.github+json"; "User-Agent" = "volttray-installer" }
-$Release = Invoke-RestMethod -Uri $ApiUrl -Headers $Headers
+try {
+  $Release = Invoke-RestMethod -Uri $ApiUrl -Headers $Headers
+} catch {
+  $status = $_.Exception.Response.StatusCode.value__
+  if ($status -eq 404) {
+    throw "No published GitHub Release found yet for '$Repo' ($Version). Publish a release tag (e.g. v1.0.0) first, or clone the repo and run 'npm run tauri:build'."
+  }
+  throw
+}
 
 $Asset = $Release.assets | Where-Object { $_.name -match "-setup\.exe$" } | Select-Object -First 1
 if (-not $Asset) {
