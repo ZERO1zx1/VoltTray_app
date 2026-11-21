@@ -1,5 +1,5 @@
 //! Optional, read-only adapter for an already-running kAirPods session service.
-//! Contract reference: docs/2026-11-15/reports/deep-research/report.md.
+//! Contract reference: docs/airpods.md.
 use super::{make_device_dto, BatteryComponent, PeripheralDeviceDto};
 use serde_json::Value;
 

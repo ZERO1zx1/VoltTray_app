@@ -21,7 +21,7 @@ Local-first, read-only system tray battery monitor for **Windows** and **Linux**
 
 ## Linux Security Note (M220 udev Rule)
 
-If you use a Valkyrie VK M3 Lite 2.4GHz receiver on Linux, `scripts/install-linux.sh` installs only the interface-scoped `src-tauri/linux/70-volttray-m220.rules` rule (restricted to `VID=0x3554`, `PID=0xfa09`, `bInterfaceNumber=02`). VoltTray intentionally does **not** grant broad hidraw access to keyboards or unrelated input devices.
+If you use a Valkyrie VK M3 Lite 2.4GHz receiver on Linux, `scripts/install-linux.sh` installs only the interface-scoped `src-tauri/linux/70-volttray-m220.rules` rule (restricted to `248a:5d2e` / `249a:5c2f`, `bInterfaceNumber=02`). VoltTray intentionally does **not** grant broad hidraw access to keyboards or unrelated input devices.
 
 ## CLI Installer
 

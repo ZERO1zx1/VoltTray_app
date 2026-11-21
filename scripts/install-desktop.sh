@@ -24,11 +24,12 @@ desktop_exec() {
   printf '"%s"' "$value"
 }
 
-mkdir -p "$APP_DIR" "$DATA_DIR/applications" "$DATA_DIR/icons/hicolor/128x128/apps"
+mkdir -p "$APP_DIR" "$DATA_DIR/applications" "$DATA_DIR/icons/hicolor/128x128/apps" "$DATA_DIR/icons/hicolor/512x512/apps"
 # Rename avoids overwriting an executable that may still be running.
 install -m 755 "$SOURCE" "$APP_DIR/volttray.new"
 mv -f "$APP_DIR/volttray.new" "$APP_DIR/volttray"
-install -m 644 "$ROOT_DIR/src-tauri/icons/icon.png" "$DATA_DIR/icons/hicolor/128x128/apps/volttray.png"
+install -m 644 "$ROOT_DIR/src-tauri/icons/128x128.png" "$DATA_DIR/icons/hicolor/128x128/apps/volttray.png"
+install -m 644 "$ROOT_DIR/src-tauri/icons/icon.png" "$DATA_DIR/icons/hicolor/512x512/apps/volttray.png"
 EXEC_VALUE="$(desktop_exec "$APP_DIR/volttray")"
 write_entry() {
 cat <<EOF

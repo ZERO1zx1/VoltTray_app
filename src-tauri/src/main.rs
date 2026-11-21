@@ -328,22 +328,32 @@ fn main() {
                 let _ = set_autostart_enabled(true);
             }
 
-            if start_minimized {
+            if !start_minimized {
                 if let Some(win) = app.get_webview_window("main") {
-                    let _ = win.hide();
+                    let _ = win.show();
+                    let _ = win.set_focus();
                 }
             }
 
             let show_item =
                 MenuItem::with_id(app, "show", "Show / Hide Widget", true, None::<&str>)?;
+            let refresh_item =
+                MenuItem::with_id(app, "refresh", "Refresh Now", true, None::<&str>)?;
             let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&show_item, &quit_item])?;
+            let menu = Menu::with_items(app, &[&show_item, &refresh_item, &quit_item])?;
 
             let mut tray_builder = TrayIconBuilder::with_id("volttray-main-tray")
                 .menu(&menu)
                 .tooltip("VoltTray — Battery & Charger")
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "show" => toggle_main_window(app),
+                    "refresh" => {
+                        let handle = app.clone();
+                        std::thread::spawn(move || {
+                            let state = handle.state::<Mutex<SnapshotCache>>();
+                            refresh_snapshot_cache(&handle, state.inner());
+                        });
+                    }
                     "quit" => app.exit(0),
                     _ => {}
                 })
@@ -436,3 +446,76 @@ fn main() {
         .run(tauri::generate_context!())
         .expect("error while running VoltTray");
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn sample_mouse(pct: u8, charging_state: &str) -> PeripheralDeviceDto {
+        PeripheralDeviceDto {
+            device_id: Some("usb:m220-test".to_string()),
+            battery_source: Some("M220 HID".to_string()),
+            connection_types: Vec::new(),
+            battery_components: Vec::new(),
+            slot_id: "slot_1".to_string(),
+            device_type: "mouse".to_string(),
+            label_en: "Valkyrie VK M3 Lite".to_string(),
+            label_mn: "Valkyrie VK M3 Lite".to_string(),
+            battery_pct: pct,
+            battery_available: true,
+            charging_state: charging_state.to_string(),
+            connection_type: "usb_dongle_2_4ghz".to_string(),
+            connected: true,
+            supports_health: false,
+            health_pct: None,
+            protocol_driver: "m220_hid".to_string(),
+        }
+    }
+
+    #[test]
+    fn background_low_battery_respects_hysteresis_charging_and_toggle() {
+        let mut alerted = HashSet::new();
+        let enabled_settings = AlertSettings {
+            locale: "en".to_string(),
+            notifications_enabled: true,
+            low_battery_threshold_pct: 20,
+        };
+        let disabled_settings = AlertSettings {
+            locale: "en".to_string(),
+            notifications_enabled: false,
+            low_battery_threshold_pct: 20,
+        };
+
+        let low = sample_mouse(18, "discharging");
+        assert!(evaluate_background_low_battery(&[low.clone()], &disabled_settings, &mut alerted).is_empty());
+
+        let first = evaluate_background_low_battery(&[low.clone()], &enabled_settings, &mut alerted);
+        assert_eq!(first.len(), 1);
+        assert!(first[0].0.contains("18%"));
+
+        // Repeat at 18% must not re-fire
+        assert!(evaluate_background_low_battery(&[low.clone()], &enabled_settings, &mut alerted).is_empty());
+
+        // Inside +5% hysteresis band (24 <= 25): still silenced
+        let band = sample_mouse(24, "discharging");
+        assert!(evaluate_background_low_battery(&[band], &enabled_settings, &mut alerted).is_empty());
+        assert!(evaluate_background_low_battery(&[low.clone()], &enabled_settings, &mut alerted).is_empty());
+
+        // Above +5% band (26 > 25): resets alert state
+        let recharged = sample_mouse(26, "discharging");
+        assert!(evaluate_background_low_battery(&[recharged], &enabled_settings, &mut alerted).is_empty());
+        assert_eq!(
+            evaluate_background_low_battery(&[low.clone()], &enabled_settings, &mut alerted).len(),
+            1
+        );
+
+        // Charging resets alert state immediately
+        let charging = sample_mouse(19, "charging");
+        assert!(evaluate_background_low_battery(&[charging], &enabled_settings, &mut alerted).is_empty());
+        assert_eq!(
+            evaluate_background_low_battery(&[low], &enabled_settings, &mut alerted).len(),
+            1
+        );
+    }
+}
+

@@ -69,16 +69,14 @@ pub fn send_native_notification(title: &str, body: &str) -> Option<&'static str>
              $n.BalloonTipText = '{safe_body}'; \
              $n.Visible = $true; \
              $n.ShowBalloonTip(5000); \
-             Start-Sleep -Milliseconds 500; \
+             Start-Sleep -Milliseconds 5500; \
              $n.Dispose()"
         );
-        let ok = Command::new("powershell")
+        let spawned = Command::new("powershell")
             .args(["-NoProfile", "-NonInteractive", "-Command", &script])
             .creation_flags(CREATE_NO_WINDOW)
-            .status()
-            .map(|s| s.success())
-            .unwrap_or(false);
-        if ok {
+            .spawn();
+        if spawned.is_ok() {
             Some("windows_notify_icon")
         } else {
             None

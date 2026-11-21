@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
+#[cfg(target_os = "linux")]
 use std::fs;
+#[cfg(target_os = "linux")]
 use std::path::Path;
 
 #[cfg(target_os = "linux")]
@@ -46,6 +48,7 @@ pub struct BatteryComponent {
     pub charging: bool,
 }
 
+#[cfg(target_os = "linux")]
 fn bluetooth_identity(native_path: &str) -> Option<String> {
     let address = native_path.rsplit("dev_").next()?.replace('_', ":");
     let parts: Vec<_> = address.split(':').collect();
@@ -53,6 +56,7 @@ fn bluetooth_identity(native_path: &str) -> Option<String> {
         .then(|| format!("bluetooth:{}", address.to_ascii_lowercase()))
 }
 
+#[cfg(target_os = "linux")]
 fn read_trimmed(path: &Path) -> String {
     fs::read_to_string(path)
         .map(|s| s.trim().to_string())
@@ -84,6 +88,7 @@ fn sanitize_model_label(model: &str) -> String {
     trimmed.to_string()
 }
 
+#[cfg(target_os = "linux")]
 fn is_generic_label(label: &str) -> bool {
     matches!(
         label.trim(),

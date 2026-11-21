@@ -3,7 +3,7 @@
 **VoltTray** нь Windows болон Linux-д зориулсан, зөвхөн унших горимтой (read-only), локал десктоп батарей хянагч юм. Нэг React интерфэйс нь хоёр орчинд ажилладаг: үндсэн **Tauri v2 (Rust)** десктоп апп болон хөгжүүлэлтэд ашиглах **Node/Express** локал сервер.
 
 ```text
-volttray/
+VoltTray_app/
 ├── .github/workflows/
 │   ├── ci.yml                     # Typecheck, Node тест, Rust cargo test, Vite build
 │   └── release.yml                # Tag (v*) үүсэхэд Windows & Linux суулгагч угсрах
@@ -17,39 +17,30 @@ volttray/
 │   ├── index.html
 │   └── styles.css
 ├── scripts/
-│   ├── clean.mjs                  # dist/ цэвэрлэгч
-│   ├── test.mjs                   # src/ доторх бүх *.test.ts файлыг автоматаар ажиллуулна
+│   ├── cli.mjs / cliCore.mjs      # Хоёр системд ажиллах CLI суулгагч (doctor/install/uninstall)
+│   ├── cliCore.test.mjs           # CLI unit тестүүд
+│   ├── install.sh / install.ps1   # Linux (curl) & Windows (PowerShell) нэг мөр суулгагч
 │   ├── install-desktop.sh         # Linux хэрэглэгчийн (sudo-гүй) desktop entry суулгагч
 │   ├── install-m220-access.sh     # M220 interface-02 udev дүрэм суулгагч
-│   └── install-linux.sh           # Linux бүрэн тохиргооны скрипт
+│   ├── install-linux.sh           # Linux бүрэн тохиргооны скрипт
+│   ├── clean.mjs                  # dist/ цэвэрлэгч
+│   └── test.mjs                   # src/ болон scripts/ доторх бүх тестийг ажиллуулна
 ├── src/
 │   ├── main.tsx                   # React entry point
-│   ├── App.tsx                    # Tauri/Web runtime lifecycle холбогч
+│   ├── App.tsx                    # Tauri дотор DesktopApp, хөтөч дээр Workbench/Landing нээнэ
+│   ├── DesktopApp.tsx             # Native 400 × 480 Tauri десктоп runtime холбогч
 │   ├── index.css                  # Tailwind v4 болон нэгдсэн загвар
-│   ├── components/                # Цэвэр UI компонентууд
-│   │   ├── TrayWidget.tsx         # 400 × 480 трэй цонхны үндсэн бүрхүүл
-│   │   ├── DeviceRow.tsx          # Төхөөрөмжийн мөр ба дэлгэрэнгүй самбар
-│   │   └── SettingsPanel.tsx      # Хэл, мэдэгдэл, босго, авто эхлэлийн тохиргоо
-│   ├── lib/                       # Хуваалцсан логик, орчуулга, bridge, төрлүүд
-│   │   ├── types.ts               # Rust DTO-той 1:1 таарсан TypeScript төрлүүд
-│   │   ├── defaults.ts            # Анхны тохиргоо ба жишээ төхөөрөмжүүд
-│   │   ├── i18n.ts                # EN / MN толь
-│   │   ├── battery.ts             # Бага цэнэг, +5% гистерезис, форматлах цэвэр функцүүд
-│   │   ├── battery.test.ts        # Unit тестүүд
-│   │   └── desktopBridge.ts       # Tauri invoke / локал HTTP API зааг
-│   └── server/                    # Хөгжүүлэлтийн локал fallback сервер
-│       ├── main.ts                # Express + Vite middleware
-│       ├── http/                  # Loopback binding + тест
-│       ├── persistence/           # Зөвхөн 4 тохиргоо хадгалах state.json store
-│       └── hardware/              # Linux probe, deviceGroups, providers (kAirPods, M220, USB)
+│   ├── components/                # TrayWidget, DeviceRow, SettingsPanel, DesktopWorkbench, LandingPreview
+│   ├── lib/                       # types, defaults, i18n, battery (+test), desktopBridge
+│   └── server/                    # Хөгжүүлэлтийн локал fallback сервер (Express)
 ├── src-tauri/                     # Native Rust десктоп цөм (Tauri v2)
 │   ├── Cargo.toml
 │   ├── tauri.conf.json
 │   ├── capabilities/default.json
-│   ├── icons/
+│   ├── icons/                     # 32x32, 128x128, 128x128@2x, 512x512 icon.png, icon.ico
 │   ├── linux/70-volttray-m220.rules
 │   └── src/
-│       ├── main.rs                # Tray icon, background alert daemon, Tauri commands
+│       ├── main.rs                # Tray icon, background alert daemon + Rust unit тестүүд
 │       ├── autostart.rs           # Windows Registry & Linux XDG autostart
 │       ├── notifications.rs       # Linux notify-send & Windows NotifyIcon мэдэгдэл
 │       └── hardware/              # Win32/WMI/PnP + Linux sysfs/UPower/OpenRazer/M220/kAirPods
@@ -57,6 +48,7 @@ volttray/
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
+├── CHANGELOG.md
 ├── LICENSE
 └── README.md
 ```
