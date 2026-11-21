@@ -96,7 +96,7 @@ export function SettingsPanel({
             <div className="text-[12.5px] font-medium text-[#F1F5F9]">
               {dict.alertsTitle}
             </div>
-            <p className="mt-0.5 text-[11px] leading-snug text-[#64748B]">
+            <p className="mt-0.5 text-[11px] leading-snug text-[#94A3B8]">
               {dict.alertsDesc}
             </p>
           </div>
@@ -112,10 +112,19 @@ export function SettingsPanel({
         </div>
 
         <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-white/[0.06] pt-2.5">
-          <span className="text-[11px] text-[#94A3B8]">{dict.thresholdLabel}</span>
+          <span
+            className={`text-[11px] transition-opacity ${
+              settings.notificationsEnabled
+                ? "text-[#94A3B8]"
+                : "text-[#94A3B8]/50"
+            }`}
+          >
+            {dict.thresholdLabel}
+          </span>
           <div
             role="group"
             aria-label={dict.thresholdLabel}
+            aria-disabled={!settings.notificationsEnabled}
             className="inline-flex rounded-md border border-white/[0.08] bg-[#0B0F14] p-0.5"
           >
             {THRESHOLDS.map((value) => {
@@ -129,10 +138,10 @@ export function SettingsPanel({
                   onClick={() =>
                     onUpdateSettings({ lowBatteryThresholdPct: value })
                   }
-                  className={`rounded px-2 py-0.5 font-mono text-[11px] font-semibold tabular-nums transition-colors disabled:opacity-40 ${
+                  className={`rounded px-2 py-0.5 font-mono text-[11px] font-semibold tabular-nums transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none ${
                     active
                       ? "bg-[#1C2736] text-[#22C55E]"
-                      : "text-[#64748B] hover:text-[#CBD5E1]"
+                      : "text-[#94A3B8] hover:text-[#F1F5F9]"
                   }`}
                 >
                   {value}%
@@ -149,7 +158,7 @@ export function SettingsPanel({
           <div className="text-[12.5px] font-medium text-[#F1F5F9]">
             {dict.autostartTitle}
           </div>
-          <p className="mt-0.5 text-[11px] leading-snug text-[#64748B]">
+          <p className="mt-0.5 text-[11px] leading-snug text-[#94A3B8]">
             {dict.autostartDesc}
           </p>
         </div>
@@ -167,7 +176,7 @@ export function SettingsPanel({
             <div className="text-[12.5px] font-medium text-[#F1F5F9]">
               {dict.pinTitle}
             </div>
-            <p className="mt-0.5 text-[11px] leading-snug text-[#64748B]">
+            <p className="mt-0.5 text-[11px] leading-snug text-[#94A3B8]">
               {dict.pinDesc}
             </p>
           </div>
@@ -180,7 +189,7 @@ export function SettingsPanel({
       )}
 
       {/* Read-only privacy guarantee */}
-      <div className="flex items-start gap-2 rounded-lg border border-white/[0.06] bg-[#0B0F14] px-3 py-2.5 text-[11px] leading-relaxed text-[#64748B]">
+      <div className="flex items-start gap-2 rounded-lg border border-white/[0.06] bg-[#0B0F14] px-3 py-2.5 text-[11px] leading-relaxed text-[#94A3B8]">
         <ShieldCheck
           className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#22C55E]"
           strokeWidth={1.9}

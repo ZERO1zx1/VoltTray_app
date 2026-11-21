@@ -137,3 +137,10 @@ export function formatLastUpdated(
   if (diff < 60_000) return f.secondsAgo(Math.max(1, Math.round(diff / 1000)));
   return f.minutesAgo(Math.max(1, Math.round(diff / 60_000)));
 }
+
+export function componentGridClass(count: number): string {
+  if (count <= 1) return "grid-cols-1";
+  if (count === 2) return "grid-cols-2";
+  return "grid-cols-3";
+}
+

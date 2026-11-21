@@ -71,6 +71,12 @@ export interface Dictionary {
   notifications: {
     lowBatteryBody: string;
   };
+  errors: {
+    autostartFailed: string;
+    pinFailed: string;
+    refreshFailed: string;
+    dismiss: string;
+  };
 }
 
 export const DICTIONARIES: Record<Locale, Dictionary> = {
@@ -152,6 +158,12 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
     notifications: {
       lowBatteryBody: "Low battery — connect your charger soon.",
     },
+    errors: {
+      autostartFailed: "Could not update launch-at-login setting.",
+      pinFailed: "Could not update window pin state.",
+      refreshFailed: "Could not refresh hardware status.",
+      dismiss: "Dismiss",
+    },
   },
   mn: {
     appName: "VoltTray",
@@ -231,6 +243,12 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
     },
     notifications: {
       lowBatteryBody: "Цэнэг бага байна — цэнэглэгчээ залгана уу.",
+    },
+    errors: {
+      autostartFailed: "Систем асахад хамт эхлэх тохиргоог шинэчилж чадсангүй.",
+      pinFailed: "Цонх бэхлэх төлөвийг өөрчилж чадсангүй.",
+      refreshFailed: "Төхөөрөмжийн төлөвийг шинэчилж чадсангүй.",
+      dismiss: "Хаах",
     },
   },
 };

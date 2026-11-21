@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { TrayWidget } from "./components/TrayWidget";
-import {
-  evaluateLowBattery,
-  settingsEqual,
-} from "./lib/battery";
+import { evaluateLowBattery, settingsEqual } from "./lib/battery";
 import {
   hideWidgetWindow,
   isTauriDesktopRuntime,
@@ -26,7 +23,12 @@ function mergeSettings(
   const saved = payload?.settings;
   const threshold = saved?.lowBatteryThresholdPct;
   return {
-    locale: saved?.locale === "mn" ? "mn" : saved?.locale === "en" ? "en" : fallback.locale,
+    locale:
+      saved?.locale === "mn"
+        ? "mn"
+        : saved?.locale === "en"
+          ? "en"
+          : fallback.locale,
     notificationsEnabled:
       typeof saved?.notificationsEnabled === "boolean"
         ? saved.notificationsEnabled
@@ -44,6 +46,8 @@ function mergeSettings(
   };
 }
 
+const ERROR_BANNER_MS = 3_800;
+
 export default function App() {
   const [devices, setDevices] = useState<PeripheralDevice[]>([]);
   const [settings, setSettings] = useState<AppSettings>(INITIAL_SETTINGS);
@@ -56,40 +60,81 @@ export default function App() {
   const [sampleMode, setSampleMode] = useState(false);
   const [pinned, setPinned] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [errorBanner, setErrorBanner] = useState<string | null>(null);
 
   const isDesktop = isTauriDesktopRuntime();
   const alertedRef = useRef<Set<string>>(new Set());
   const lastSavedSettingsRef = useRef<AppSettings | null>(null);
+  const settingsRef = useRef<AppSettings>(settings);
+  const pinnedRef = useRef<boolean>(pinned);
+  const sampleModeRef = useRef<boolean>(sampleMode);
+  const bannerTimerRef = useRef<number | null>(null);
+
+  settingsRef.current = settings;
+  pinnedRef.current = pinned;
+  sampleModeRef.current = sampleMode;
+
+  const dismissErrorBanner = useCallback(() => {
+    if (bannerTimerRef.current !== null) {
+      window.clearTimeout(bannerTimerRef.current);
+      bannerTimerRef.current = null;
+    }
+    setErrorBanner(null);
+  }, []);
+
+  const showErrorBanner = useCallback((message: string) => {
+    if (bannerTimerRef.current !== null) {
+      window.clearTimeout(bannerTimerRef.current);
+    }
+    setErrorBanner(message);
+    bannerTimerRef.current = window.setTimeout(() => {
+      bannerTimerRef.current = null;
+      setErrorBanner(null);
+    }, ERROR_BANNER_MS);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (bannerTimerRef.current !== null) {
+        window.clearTimeout(bannerTimerRef.current);
+      }
+    };
+  }, []);
 
   const applyPayload = useCallback((payload: LocalBootstrapPayload | null) => {
     if (!payload) {
       setSyncError(true);
       setLoading(false);
-      return;
+      return false;
     }
     setDevices(Array.isArray(payload.devices) ? payload.devices : []);
     setChargerConnected(Boolean(payload.chargerConnected));
     setLastUpdated(Date.now());
     setSyncError(false);
     setLoading(false);
+    return true;
   }, []);
 
   const handleRefresh = useCallback(async () => {
-    if (sampleMode) {
+    if (sampleModeRef.current) {
       setLastUpdated(Date.now());
       return;
     }
     setSyncing(true);
     try {
       const payload = await loadLocalBootstrap(true);
-      applyPayload(payload);
+      const ok = applyPayload(payload);
+      if (!ok) {
+        showErrorBanner(DICTIONARIES[settingsRef.current.locale].errors.refreshFailed);
+      }
     } catch {
       setSyncError(true);
       setLoading(false);
+      showErrorBanner(DICTIONARIES[settingsRef.current.locale].errors.refreshFailed);
     } finally {
       setSyncing(false);
     }
-  }, [applyPayload, sampleMode]);
+  }, [applyPayload, showErrorBanner]);
 
   // Initial hydration
   useEffect(() => {
@@ -198,48 +243,92 @@ export default function App() {
     setSettings((prev) => ({ ...prev, ...patch }));
   }, []);
 
-  const handleToggleAutostart = useCallback(() => {
-    setSettings((prev) => {
-      const target = !prev.launchAtLogin;
-      void toggleOsAutostart(target).then((actual) => {
-        setSettings((curr) =>
-          curr.launchAtLogin === actual ? curr : { ...curr, launchAtLogin: actual },
-        );
-      });
-      return { ...prev, launchAtLogin: target };
-    });
-  }, []);
+  const handleToggleAutostart = useCallback(async () => {
+    const previous = settingsRef.current.launchAtLogin;
+    const target = !previous;
+    setSettings((curr) => ({ ...curr, launchAtLogin: target }));
 
-  const handleTogglePin = useCallback(() => {
-    setPinned((prev) => {
-      const target = !prev;
-      void setWidgetPinned(target).then((actual) => setPinned(actual));
-      return target;
-    });
-  }, []);
+    try {
+      const result = await toggleOsAutostart(target);
+      if (!result.ok) {
+        setSettings((curr) => ({ ...curr, launchAtLogin: previous }));
+        showErrorBanner(
+          DICTIONARIES[settingsRef.current.locale].errors.autostartFailed,
+        );
+        return;
+      }
+      setSettings((curr) =>
+        curr.launchAtLogin === result.enabled
+          ? curr
+          : { ...curr, launchAtLogin: result.enabled },
+      );
+    } catch {
+      setSettings((curr) => ({ ...curr, launchAtLogin: previous }));
+      showErrorBanner(
+        DICTIONARIES[settingsRef.current.locale].errors.autostartFailed,
+      );
+    }
+  }, [showErrorBanner]);
+
+  const handleTogglePin = useCallback(async () => {
+    const previous = pinnedRef.current;
+    const target = !previous;
+    setPinned(target);
+
+    try {
+      const result = await setWidgetPinned(target);
+      if (!result.ok) {
+        setPinned(previous);
+        showErrorBanner(
+          DICTIONARIES[settingsRef.current.locale].errors.pinFailed,
+        );
+        return;
+      }
+      setPinned(result.pinned);
+    } catch {
+      setPinned(previous);
+      showErrorBanner(
+        DICTIONARIES[settingsRef.current.locale].errors.pinFailed,
+      );
+    }
+  }, [showErrorBanner]);
 
   const handleHideWindow = useCallback(() => {
     void hideWidgetWindow();
   }, []);
 
-  const handleToggleSample = useCallback(() => {
-    setSampleMode((prev) => {
-      const next = !prev;
-      if (next) {
-        setDevices(INITIAL_DEVICES);
-        setChargerConnected(true);
-        setSyncError(false);
-        setLastUpdated(Date.now());
-      } else {
-        setLoading(true);
-        void loadLocalBootstrap(true).then(applyPayload);
+  const handleToggleSample = useCallback(async () => {
+    const next = !sampleModeRef.current;
+    setSampleMode(next);
+
+    if (next) {
+      setDevices(INITIAL_DEVICES);
+      setChargerConnected(true);
+      setSyncError(false);
+      setLastUpdated(Date.now());
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const payload = await loadLocalBootstrap(true);
+      const ok = applyPayload(payload);
+      if (!ok) {
+        showErrorBanner(
+          DICTIONARIES[settingsRef.current.locale].errors.refreshFailed,
+        );
       }
-      return next;
-    });
-  }, [applyPayload]);
+    } catch {
+      setSyncError(true);
+      setLoading(false);
+      showErrorBanner(
+        DICTIONARIES[settingsRef.current.locale].errors.refreshFailed,
+      );
+    }
+  }, [applyPayload, showErrorBanner]);
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#0B0F14]">
+    <div className="h-screen w-screen overflow-hidden rounded-xl border border-white/[0.08] bg-[#0B0F14]">
       <TrayWidget
         devices={devices}
         settings={settings}
@@ -249,15 +338,17 @@ export default function App() {
         loading={loading}
         syncing={syncing}
         syncError={syncError}
+        errorBanner={errorBanner}
+        onDismissError={dismissErrorBanner}
         sampleMode={sampleMode}
         pinned={pinned}
         isDesktop={isDesktop}
         onRefresh={() => void handleRefresh()}
         onUpdateSettings={handleUpdateSettings}
-        onToggleAutostart={handleToggleAutostart}
-        onTogglePin={handleTogglePin}
+        onToggleAutostart={() => void handleToggleAutostart()}
+        onTogglePin={() => void handleTogglePin()}
         onHideWindow={handleHideWindow}
-        onToggleSample={handleToggleSample}
+        onToggleSample={() => void handleToggleSample()}
       />
     </div>
   );

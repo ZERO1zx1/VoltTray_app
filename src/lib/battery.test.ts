@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { INITIAL_DEVICES, INITIAL_SETTINGS } from "./defaults";
 import {
+  componentGridClass,
   connectionBadge,
   deviceSubtitle,
   evaluateLowBattery,
@@ -112,4 +113,8 @@ test("settingsEqual prevents unnecessary disk writes and formatLastUpdated handl
     ),
     "USB + 2.4GHz",
   );
+  assert.equal(componentGridClass(1), "grid-cols-1");
+  assert.equal(componentGridClass(2), "grid-cols-2");
+  assert.equal(componentGridClass(3), "grid-cols-3");
+  assert.equal(componentGridClass(4), "grid-cols-3");
 });

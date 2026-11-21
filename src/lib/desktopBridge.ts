@@ -1,17 +1,5 @@
+import { invoke, isTauri } from "@tauri-apps/api/core";
 import type { AppSettings, PeripheralDevice } from "./types";
-
-interface TauriInternals {
-  invoke: <T = unknown>(
-    cmd: string,
-    args?: Record<string, unknown>,
-  ) => Promise<T>;
-}
-
-declare global {
-  interface Window {
-    __TAURI_INTERNALS__?: TauriInternals;
-  }
-}
 
 export interface LocalBootstrapPayload {
   mode?: string;
@@ -23,17 +11,30 @@ export interface LocalBootstrapPayload {
   devices?: PeripheralDevice[];
 }
 
-export interface HardwareActionRequest {
+export interface NotificationActionRequest {
   action: "send_low_battery_alert";
   title?: string;
   body?: string;
 }
 
+export interface AutostartToggleResult {
+  ok: boolean;
+  enabled: boolean;
+  error?: string;
+}
+
+export interface PinToggleResult {
+  ok: boolean;
+  pinned: boolean;
+  error?: string;
+}
+
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
 export function isTauriDesktopRuntime(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    typeof window.__TAURI_INTERNALS__?.invoke === "function"
-  );
+  return typeof window !== "undefined" && isTauri();
 }
 
 export async function loadLocalBootstrap(
@@ -41,10 +42,9 @@ export async function loadLocalBootstrap(
 ): Promise<LocalBootstrapPayload | null> {
   if (isTauriDesktopRuntime()) {
     try {
-      return await window.__TAURI_INTERNALS__!.invoke<LocalBootstrapPayload>(
-        "get_local_bootstrap",
-        { force },
-      );
+      return await invoke<LocalBootstrapPayload>("get_local_bootstrap", {
+        force,
+      });
     } catch {
       return null;
     }
@@ -91,7 +91,7 @@ export async function persistLocalSettings(
 ): Promise<void> {
   if (isTauriDesktopRuntime()) {
     try {
-      await window.__TAURI_INTERNALS__!.invoke("save_local_state", {
+      await invoke("save_local_state", {
         payload: { settings },
       });
     } catch {
@@ -111,15 +111,19 @@ export async function persistLocalSettings(
   }
 }
 
-export async function toggleOsAutostart(enabled: boolean): Promise<boolean> {
+export async function toggleOsAutostart(
+  enabled: boolean,
+): Promise<AutostartToggleResult> {
   if (isTauriDesktopRuntime()) {
     try {
-      return await window.__TAURI_INTERNALS__!.invoke<boolean>(
-        "set_autostart",
-        { enabled },
-      );
-    } catch {
-      return enabled;
+      const actual = await invoke<boolean>("set_autostart", { enabled });
+      return { ok: true, enabled: actual };
+    } catch (err) {
+      return {
+        ok: false,
+        enabled: !enabled,
+        error: errorMessage(err),
+      };
     }
   }
 
@@ -129,32 +133,38 @@ export async function toggleOsAutostart(enabled: boolean): Promise<boolean> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ enabled }),
     });
-    if (res.ok) {
-      const data = (await res.json()) as { enabled?: boolean };
-      return Boolean(data.enabled);
+    if (!res.ok) {
+      return {
+        ok: false,
+        enabled: !enabled,
+        error: `HTTP ${res.status}`,
+      };
     }
-  } catch {
-    // Ignore local web autostart error
+    const data = (await res.json()) as { enabled?: boolean };
+    return { ok: true, enabled: Boolean(data.enabled) };
+  } catch (err) {
+    return {
+      ok: false,
+      enabled: !enabled,
+      error: errorMessage(err),
+    };
   }
-  return enabled;
 }
 
 export async function sendLowBatteryNotification(
   title: string,
   body: string,
 ): Promise<void> {
-  const request: HardwareActionRequest = {
+  const request: NotificationActionRequest = {
     action: "send_low_battery_alert",
     title,
     body,
   };
   if (isTauriDesktopRuntime()) {
     try {
-      await window.__TAURI_INTERNALS__!.invoke("run_linux_hardware_action", {
-        request,
-      });
+      await invoke("send_low_battery_notification", { request });
     } catch {
-      // Ignore error
+      // Ignore notification backend error
     }
     return;
   }
@@ -170,22 +180,28 @@ export async function sendLowBatteryNotification(
   }
 }
 
-export async function setWidgetPinned(pinned: boolean): Promise<boolean> {
-  if (!isTauriDesktopRuntime()) return pinned;
+export async function setWidgetPinned(
+  pinned: boolean,
+): Promise<PinToggleResult> {
+  if (!isTauriDesktopRuntime()) {
+    return { ok: true, pinned };
+  }
   try {
-    return await window.__TAURI_INTERNALS__!.invoke<boolean>(
-      "set_widget_pinned",
-      { pinned },
-    );
-  } catch {
-    return pinned;
+    const actual = await invoke<boolean>("set_widget_pinned", { pinned });
+    return { ok: true, pinned: actual };
+  } catch (err) {
+    return {
+      ok: false,
+      pinned: !pinned,
+      error: errorMessage(err),
+    };
   }
 }
 
 export async function hideWidgetWindow(): Promise<void> {
   if (!isTauriDesktopRuntime()) return;
   try {
-    await window.__TAURI_INTERNALS__!.invoke("hide_widget");
+    await invoke("hide_widget");
   } catch {
     // Ignore error
   }

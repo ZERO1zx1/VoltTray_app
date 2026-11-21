@@ -11,6 +11,7 @@ import {
   Zap,
 } from "lucide-react";
 import {
+  componentGridClass,
   connectionBadge,
   deviceKey,
   deviceSubtitle,
@@ -54,7 +55,7 @@ function levelTone(
   low: boolean,
 ): { bar: string; text: string } {
   if (!hasReading) {
-    return { bar: "bg-white/15", text: "text-[#64748B]" };
+    return { bar: "bg-white/15", text: "text-[#94A3B8]" };
   }
   if (device.chargingState === "charging" || device.chargingState === "full") {
     return { bar: "bg-[#22C55E]", text: "text-[#22C55E]" };
@@ -134,8 +135,8 @@ export function DeviceRow({
                   {readable ? `${pct}%` : "—"}
                 </span>
                 <ChevronDown
-                  className={`h-3.5 w-3.5 text-[#64748B] transition-transform duration-150 ${
-                    expanded ? "rotate-180 text-[#94A3B8]" : ""
+                  className={`h-3.5 w-3.5 text-[#94A3B8] transition-transform duration-150 ${
+                    expanded ? "rotate-180 text-[#CBD5E1]" : ""
                   }`}
                   aria-hidden="true"
                 />
@@ -177,7 +178,7 @@ export function DeviceRow({
           {device.batteryComponents && device.batteryComponents.length > 0 && (
             <div
               aria-label={dict.componentsAria}
-              className="mb-2.5 grid grid-cols-3 gap-1.5"
+              className={`mb-2.5 grid ${componentGridClass(device.batteryComponents.length)} gap-1.5`}
             >
               {device.batteryComponents.map((comp) => {
                 const compPct = Math.max(0, Math.min(100, Math.round(comp.batteryPct)));
@@ -215,20 +216,20 @@ export function DeviceRow({
 
           <dl className="space-y-1">
             <div className="flex items-center justify-between gap-3">
-              <dt className="text-[#64748B]">{dict.connectionLabel}</dt>
-              <dd className="font-mono text-[11px] text-[#CBD5E1]">{connText}</dd>
+              <dt className="text-[#94A3B8]">{dict.connectionLabel}</dt>
+              <dd className="font-mono text-[11px] text-[#E2E8F0]">{connText}</dd>
             </div>
             {device.batterySource && (
               <div className="flex items-center justify-between gap-3">
-                <dt className="text-[#64748B]">{dict.sourceLabel}</dt>
-                <dd className="font-mono text-[11px] text-[#CBD5E1]">
+                <dt className="text-[#94A3B8]">{dict.sourceLabel}</dt>
+                <dd className="font-mono text-[11px] text-[#E2E8F0]">
                   {device.batterySource}
                 </dd>
               </div>
             )}
             {device.supportsHealth && typeof device.healthPct === "number" && (
               <div className="flex items-center justify-between gap-3">
-                <dt className="text-[#64748B]">{dict.healthLabel}</dt>
+                <dt className="text-[#94A3B8]">{dict.healthLabel}</dt>
                 <dd className="font-mono text-[11px] font-medium text-[#22C55E] tabular-nums">
                   {device.healthPct}%
                 </dd>
@@ -237,7 +238,7 @@ export function DeviceRow({
           </dl>
 
           {device.type === "laptop" && (
-            <p className="mt-2 border-t border-white/[0.05] pt-2 text-[10.5px] leading-relaxed text-[#64748B]">
+            <p className="mt-2 border-t border-white/[0.05] pt-2 text-[10.5px] leading-relaxed text-[#94A3B8]">
               {dict.healthNote}
             </p>
           )}

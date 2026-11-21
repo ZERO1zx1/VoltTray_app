@@ -7,8 +7,8 @@ mod notifications;
 use autostart::{is_autostart_enabled, set_autostart_enabled};
 use hardware::{linux_hardware_signature, probe_linux_snapshot, PeripheralDeviceDto};
 use notifications::{
-    execute_linux_action, send_native_notification, HardwareActionRequestDto,
-    HardwareActionResultDto,
+    execute_notification_action, send_native_notification, NotificationRequestDto,
+    NotificationResultDto,
 };
 use serde_json::Value;
 use std::collections::HashSet;
@@ -237,9 +237,16 @@ fn get_local_bootstrap(
         .and_then(|s| s.get("settings").cloned())
         .unwrap_or(Value::Null);
 
+    let os_name = match std::env::consts::OS {
+        "windows" => "windows",
+        "macos" => "macos",
+        "linux" => "linux",
+        other => other,
+    };
+
     serde_json::json!({
         "mode": "tauri_local",
-        "os": if cfg!(target_os = "windows") { "windows" } else { "linux" },
+        "os": os_name,
         "chargerConnected": charger_connected,
         "autostartEnabled": is_autostart_enabled(),
         "probedHardwareCount": devices.len(),
@@ -292,8 +299,8 @@ fn hide_widget(app: AppHandle) {
 }
 
 #[tauri::command]
-fn run_linux_hardware_action(request: HardwareActionRequestDto) -> HardwareActionResultDto {
-    execute_linux_action(request)
+fn send_low_battery_notification(request: NotificationRequestDto) -> NotificationResultDto {
+    execute_notification_action(request)
 }
 
 fn toggle_main_window(app: &AppHandle) {
@@ -441,7 +448,7 @@ fn main() {
             set_autostart,
             set_widget_pinned,
             hide_widget,
-            run_linux_hardware_action
+            send_low_battery_notification
         ])
         .run(tauri::generate_context!())
         .expect("error while running VoltTray");
