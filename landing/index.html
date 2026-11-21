@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VoltTray — Local-First Desktop Battery Monitor for Windows &amp; Linux</title>
+    <meta
+      name="description"
+      content="Read-only system tray battery monitor for laptop, Bluetooth, and 2.4GHz peripherals on Windows and Linux. Open source, zero telemetry."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a href="#top" class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11.2 2.5L4.5 11h5l-.7 6.5L15.5 9h-5l.7-6.5z" />
+            </svg>
+          </span>
+          <span>VoltTray</span>
+        </a>
+
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#features" data-i18n="nav_features">Features</a>
+          <a href="#providers" data-i18n="nav_providers">Hardware</a>
+          <a href="#install" data-i18n="nav_install">Build</a>
+          <a href="#faq" data-i18n="nav_faq">FAQ</a>
+        </nav>
+
+        <div class="nav-actions">
+          <div class="lang-switch" role="group" aria-label="Language">
+            <button type="button" data-lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="mn" aria-pressed="false">MN</button>
+          </div>
+          <a
+            href="https://github.com/ZERO1zx1/VoltTray_app"
+            target="_blank"
+            rel="noreferrer"
+            class="btn btn-primary btn-sm"
+            data-i18n="nav_cta"
+          >
+            GitHub
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="container hero-grid">
+          <div>
+            <p class="eyebrow" data-i18n="hero_eyebrow">
+              WINDOWS &amp; LINUX · TAURI V2 + RUST
+            </p>
+            <h1 data-i18n="hero_title">
+              Every peripheral battery, one calm tray click away.
+            </h1>
+            <p class="hero-sub" data-i18n="hero_sub">
+              VoltTray sits quietly in your system tray and reads real battery levels from your laptop, Bluetooth headphones, and 2.4GHz wireless peripherals—with zero background bloat, zero telemetry, and strict read-only safety.
+            </p>
+            <div class="hero-cta">
+              <a href="#install" class="btn btn-primary" data-i18n="hero_cta_primary">
+                Build from Source
+              </a>
+              <a
+                href="https://github.com/ZERO1zx1/VoltTray_app"
+                target="_blank"
+                rel="noreferrer"
+                class="btn btn-secondary"
+                data-i18n="hero_cta_secondary"
+              >
+                Inspect Source on GitHub
+              </a>
+            </div>
+            <ul class="hero-facts">
+              <li data-i18n="fact_1">MIT Open Source</li>
+              <li data-i18n="fact_2">Read-Only Hardware Probing</li>
+              <li data-i18n="fact_3">EN &amp; MN Native UI</li>
+            </ul>
+          </div>
+
+          <aside class="widget-shell" aria-label="VoltTray desktop tray preview">
+            <div class="widget-bar">
+              <span>VoltTray</span>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted)">
+                400 × 480
+              </span>
+            </div>
+            <div class="widget-meta">
+              <span data-i18n="mock_ac">AC charger connected</span>
+              <span style="font-family: var(--font-mono)" data-i18n="mock_count">4 devices</span>
+            </div>
+            <div class="widget-list">
+              <div class="device-card">
+                <div class="device-head">
+                  <span class="device-name" data-i18n="mock_sys">System Battery</span>
+                  <span class="device-pct ok">86%</span>
+                </div>
+                <div class="device-sub" data-i18n="mock_sys_sub">
+                  System · Charging · Health 94%
+                </div>
+                <div class="device-bar"><span class="bar-ok" style="width: 86%"></span></div>
+              </div>
+
+              <div class="device-card low">
+                <div class="device-head">
+                  <span class="device-name">Valkyrie VK M3 Lite</span>
+                  <span class="device-pct low">18%</span>
+                </div>
+                <div class="device-sub" data-i18n="mock_mouse_sub">
+                  2.4GHz · Low battery · M220 HID
+                </div>
+                <div class="device-bar"><span class="bar-low" style="width: 18%"></span></div>
+              </div>
+
+              <div class="device-card">
+                <div class="device-head">
+                  <span class="device-name">AirPods Pro</span>
+                  <span class="device-pct mid">54%</span>
+                </div>
+                <div class="device-sub" data-i18n="mock_pods_sub">
+                  Bluetooth · On battery · kAirPods
+                </div>
+                <div class="device-bar"><span class="bar-mid" style="width: 54%"></span></div>
+                <div class="comp-grid">
+                  <div class="comp-cell">
+                    <span data-i18n="comp_left">Left</span>
+                    <strong>54%</strong>
+                  </div>
+                  <div class="comp-cell">
+                    <span data-i18n="comp_right">Right</span>
+                    <strong>62%</strong>
+                  </div>
+                  <div class="comp-cell">
+                    <span data-i18n="comp_case">Case</span>
+                    <strong>91%</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="device-card">
+                <div class="device-head">
+                  <span class="device-name">DIERYA DK68SE</span>
+                  <span class="device-pct none">—</span>
+                </div>
+                <div class="device-sub" data-i18n="mock_kbd_sub">
+                  USB · Connected · No battery telemetry
+                </div>
+              </div>
+            </div>
+            <div class="widget-foot">
+              <span data-i18n="mock_synced">Just now</span>
+              <span data-i18n="mock_auto">Auto-start · On</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="features" class="section">
+        <div class="container">
+          <div class="section-head">
+            <h2 data-i18n="feat_title">Built like a native system utility</h2>
+            <p data-i18n="feat_sub">
+              No vendor bloatware suites, no cloud accounts, and no risky device writes.
+            </p>
+          </div>
+          <div class="grid-3">
+            <article class="card">
+              <span class="mono-tag">01 / BACKGROUND ALERTS</span>
+              <h3 data-i18n="f1_title">Hysteresis low-battery alerts</h3>
+              <p data-i18n="f1_body">
+                Alerts run directly in the Rust tray daemon—even while the popup is closed—using a +5% hysteresis band so notifications never spam at the threshold.
+              </p>
+            </article>
+            <article class="card">
+              <span class="mono-tag">02 / STRICT READ-ONLY</span>
+              <h3 data-i18n="f2_title">Zero firmware or LED writes</h3>
+              <p data-i18n="f2_body">
+                VoltTray never alters DPI, RGB lighting, volume, or charge limits. Linux udev rules are strictly scoped to vendor HID telemetry interfaces—never keyboard input nodes.
+              </p>
+            </article>
+            <article class="card">
+              <span class="mono-tag">03 / LOCAL-FIRST</span>
+              <h3 data-i18n="f3_title">Offline &amp; zero telemetry</h3>
+              <p data-i18n="f3_body">
+                Only your four preferences (language, alerts, threshold, launch at login) are saved locally in state.json. Zero analytics SDKs, zero outbound requests.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="providers" class="section">
+        <div class="container">
+          <div class="section-head">
+            <h2 data-i18n="prov_title">Verified hardware providers</h2>
+            <p data-i18n="prov_sub">
+              VoltTray reads standard OS interfaces first, then enriches supported peripherals without guessing missing percentages.
+            </p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="th_os">Platform</th>
+                  <th data-i18n="th_source">Data Source</th>
+                  <th data-i18n="th_devices">Devices Covered</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Linux</td>
+                  <td><code>/sys/class/power_supply</code> &amp; <code>UPower</code></td>
+                  <td data-i18n="row_linux_sys">Laptop battery + health %, HID++ mice/keyboards, Bluetooth BAS</td>
+                </tr>
+                <tr>
+                  <td>Linux</td>
+                  <td><code>OpenRazer</code> &amp; <code>HeadsetControl</code></td>
+                  <td data-i18n="row_linux_gaming">Supported Razer mice/keyboards and USB wireless headsets</td>
+                </tr>
+                <tr>
+                  <td>Linux</td>
+                  <td><code>kAirPods D-Bus</code> &amp; <code>M220 HID</code></td>
+                  <td data-i18n="row_linux_extra">AirPods Left/Right/Case levels; Valkyrie VK M3 Lite 2.4GHz mouse</td>
+                </tr>
+                <tr>
+                  <td>Windows</td>
+                  <td><code>Win32_Battery</code> &amp; <code>PnP DEVPKEY</code></td>
+                  <td data-i18n="row_win">Laptop battery + WMI design health % and Windows BLE/HID devices</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="install" class="section">
+        <div class="container">
+          <div class="section-head">
+            <h2 data-i18n="inst_title">Build from source</h2>
+            <p data-i18n="inst_sub">
+              Requires Node.js 20+ and the Rust / Tauri v2 toolchain.
+            </p>
+          </div>
+          <div class="code-grid">
+            <div class="card">
+              <h3>Linux CLI Installer</h3>
+              <pre><code>curl -fsSL https://raw.githubusercontent.com/ZERO1zx1/VoltTray_app/main/scripts/install.sh | bash
+
+# Or build locally via Node CLI
+node scripts/cli.mjs install --from-source --lang mn</code></pre>
+            </div>
+            <div class="card">
+              <h3>Windows PowerShell CLI</h3>
+              <pre><code>irm https://raw.githubusercontent.com/ZERO1zx1/VoltTray_app/main/scripts/install.ps1 | iex
+
+# Or build locally via Node CLI
+node scripts/cli.mjs install --from-source --lang mn</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" class="section">
+        <div class="container">
+          <div class="section-head">
+            <h2 data-i18n="faq_title">Frequently asked questions</h2>
+          </div>
+          <div class="faq-list">
+            <article class="card">
+              <h3 data-i18n="q1">Why does my wired keyboard show “—” instead of 0%?</h3>
+              <p data-i18n="a1">
+                Wired devices without a battery do not report telemetry. VoltTray explicitly marks them as connected with no battery reading rather than faking 0% or triggering false alerts.
+              </p>
+            </article>
+            <article class="card">
+              <h3 data-i18n="q2">Can VoltTray set an 80% laptop charge limit or change RGB?</h3>
+              <p data-i18n="a2">
+                No. VoltTray is strictly read-only by design. Charge thresholds and LED settings remain under your OS or manufacturer firmware controls.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <span>VoltTray · MIT License</span>
+        <span data-i18n="footer_note">Local-first desktop utility · Windows &amp; Linux</span>
+      </div>
+    </footer>
+
+    <script>
+      const copy = {
+        en: {
+          nav_features: "Features",
+          nav_providers: "Hardware",
+          nav_install: "Build",
+          nav_faq: "FAQ",
+          nav_cta: "GitHub",
+          hero_eyebrow: "WINDOWS & LINUX · TAURI V2 + RUST",
+          hero_title: "Every peripheral battery, one calm tray click away.",
+          hero_sub:
+            "VoltTray sits quietly in your system tray and reads real battery levels from your laptop, Bluetooth headphones, and 2.4GHz wireless peripherals—with zero background bloat, zero telemetry, and strict read-only safety.",
+          hero_cta_primary: "Build from Source",
+          hero_cta_secondary: "Inspect Source on GitHub",
+          fact_1: "MIT Open Source",
+          fact_2: "Read-Only Hardware Probing",
+          fact_3: "EN & MN Native UI",
+          mock_ac: "AC charger connected",
+          mock_count: "4 devices",
+          mock_sys: "System Battery",
+          mock_sys_sub: "System · Charging · Health 94%",
+          mock_mouse_sub: "2.4GHz · Low battery · M220 HID",
+          mock_pods_sub: "Bluetooth · On battery · kAirPods",
+          mock_kbd_sub: "USB · Connected · No battery telemetry",
+          comp_left: "Left",
+          comp_right: "Right",
+          comp_case: "Case",
+          mock_synced: "Just now",
+          mock_auto: "Auto-start · On",
+          feat_title: "Built like a native system utility",
+          feat_sub:
+            "No vendor bloatware suites, no cloud accounts, and no risky device writes.",
+          f1_title: "Hysteresis low-battery alerts",
+          f1_body:
+            "Alerts run directly in the Rust tray daemon—even while the popup is closed—using a +5% hysteresis band so notifications never spam at the threshold.",
+          f2_title: "Zero firmware or LED writes",
+          f2_body:
+            "VoltTray never alters DPI, RGB lighting, volume, or charge limits. Linux udev rules are strictly scoped to vendor HID telemetry interfaces—never keyboard input nodes.",
+          f3_title: "Offline & zero telemetry",
+          f3_body:
+            "Only your four preferences (language, alerts, threshold, launch at login) are saved locally in state.json. Zero analytics SDKs, zero outbound requests.",
+          prov_title: "Verified hardware providers",
+          prov_sub:
+            "VoltTray reads standard OS interfaces first, then enriches supported peripherals without guessing missing percentages.",
+          th_os: "Platform",
+          th_source: "Data Source",
+          th_devices: "Devices Covered",
+          row_linux_sys: "Laptop battery + health %, HID++ mice/keyboards, Bluetooth BAS",
+          row_linux_gaming: "Supported Razer mice/keyboards and USB wireless headsets",
+          row_linux_extra: "AirPods Left/Right/Case levels; Valkyrie VK M3 Lite 2.4GHz mouse",
+          row_win: "Laptop battery + WMI design health % and Windows BLE/HID devices",
+          inst_title: "Build from source",
+          inst_sub: "Requires Node.js 20+ and the Rust / Tauri v2 toolchain.",
+          faq_title: "Frequently asked questions",
+          q1: 'Why does my wired keyboard show “—” instead of 0%?',
+          a1: "Wired devices without a battery do not report telemetry. VoltTray explicitly marks them as connected with no battery reading rather than faking 0% or triggering false alerts.",
+          q2: "Can VoltTray set an 80% laptop charge limit or change RGB?",
+          a2: "No. VoltTray is strictly read-only by design. Charge thresholds and LED settings remain under your OS or manufacturer firmware controls.",
+          footer_note: "Local-first desktop utility · Windows & Linux",
+        },
+        mn: {
+          nav_features: "Боломжууд",
+          nav_providers: "Төхөөрөмжүүд",
+          nav_install: "Суулгах",
+          nav_faq: "Асуулт",
+          nav_cta: "GitHub",
+          hero_eyebrow: "WINDOWS БА LINUX · TAURI V2 + RUST",
+          hero_title: "Бүх төхөөрөмжийн цэнэг трэй дээр нэг товшилтоор.",
+          hero_sub:
+            "VoltTray нь таны зөөврийн компьютер, Bluetooth чихэвч болон 2.4GHz утасгүй төхөөрөмжийн бодит цэнэгийг системийн трэй дотроос харуулна—нэмэлт ачаалалгүй, телеметригүй, зөвхөн унших аюулгүй горимтой.",
+          hero_cta_primary: "Эх кодоос угсрах",
+          hero_cta_secondary: "GitHub эх код харах",
+          fact_1: "MIT Нээлттэй Эх",
+          fact_2: "Зөвхөн унших горим",
+          fact_3: "EN ба MN дэмжлэг",
+          mock_ac: "Цэнэглэгч залгагдсан",
+          mock_count: "4 төхөөрөмж",
+          mock_sys: "Компьютерын батарей",
+          mock_sys_sub: "Систем · Цэнэглэж байна · Эрүүл мэнд 94%",
+          mock_mouse_sub: "2.4GHz · Цэнэг бага · M220 HID",
+          mock_pods_sub: "Bluetooth · Батарейгаар · kAirPods",
+          mock_kbd_sub: "USB · Холбогдсон · Цэнэгийн мэдээлэлгүй",
+          comp_left: "Зүүн",
+          comp_right: "Баруун",
+          comp_case: "Кейс",
+          mock_synced: "Саяхан",
+          mock_auto: "Авто эхлэл · Асаалттай",
+          feat_title: "Системийн жинхэнэ хэрэгсэл шиг хийгдсэн",
+          feat_sub:
+            "Хүнд драйверын багцгүй, үүлэн бүртгэлгүй, төхөөрөмж рүү эрсдэлтэй бичилт хийхгүй.",
+          f1_title: "Цонх хаалттай үед ч анхааруулна",
+          f1_body:
+            "Бага цэнэгийн хяналт Rust background хэсэгт шууд ажиллаж, +5% гистерезис ашигласнаар босго орчимд давтан мэдэгдэл илгээхгүй.",
+          f2_title: "Firmware болон LED өөрчлөхгүй",
+          f2_body:
+            "DPI, RGB гэрэл, дууны түвшин болон цэнэгийн хязгаарт хүрэхгүй. Linux udev дүрэм зөвхөн тухайн vendor HID интерфэйсэд хязгаарлагдсан.",
+          f3_title: "Офлайн ба телеметригүй",
+          f3_body:
+            "Зөвхөн 4 тохиргоо (хэл, мэдэгдэл, босго, авто эхлэл) таны диск дээрх state.json файлд хадгалагдана. Гадагш ямар ч хүсэлт илгээхгүй.",
+          prov_title: "Баталгаажсан төхөөрөмжийн эх сурвалжууд",
+          prov_sub:
+            "Эхлээд үйлдлийн системийн стандарт сувгийг уншиж, цэнэгийн мэдээлэлгүй төхөөрөмжид хуурамч хувь зохиож харуулахгүй.",
+          th_os: "Систем",
+          th_source: "Эх сурвалж",
+          th_devices: "Дэмжих төхөөрөмж",
+          row_linux_sys: "Зөөврийн компьютерын батарей + эрүүл мэнд %, HID++, Bluetooth BAS",
+          row_linux_gaming: "OpenRazer дэмжлэгтэй Razer хулгана/гар болон USB чихэвч",
+          row_linux_extra: "AirPods зүүн/баруун/кейс хувь; Valkyrie VK M3 Lite 2.4GHz хулгана",
+          row_win: "Компьютерын батарей + WMI эрүүл мэнд % болон Windows BLE/HID төхөөрөмж",
+          inst_title: "Эх кодоос угсрах",
+          inst_sub: "Node.js 20+ болон Rust / Tauri v2 орчин шаардлагатай.",
+          faq_title: "Түгээмэл асуултууд",
+          q1: "Яагаад утастай гар дээр 0% биш “—” гэж харагдаж байна вэ?",
+          a1: "Батарейгүй утастай төхөөрөмж цэнэгийн мэдээлэл дамжуулдаггүй. VoltTray үүнийг 0% гэж андуурч анхааруулахын оронд цэнэгийн мэдээлэлгүй гэдгийг тодорхой харуулдаг.",
+          q2: "VoltTray 80% цэнэгийн хязгаар эсвэл RGB тохируулж чадах уу?",
+          a2: "Үгүй. VoltTray нь аюулгүй байдлын үүднээс зөвхөн унших горимтой. Цэнэгийн хязгаар болон LED тохиргоог системийн үндсэн хэрэгслээр удирдана.",
+          footer_note: "Локал десктоп хэрэгсэл · Windows ба Linux",
+        },
+      };
+
+      const buttons = document.querySelectorAll("[data-lang]");
+      function setLang(lang) {
+        document.documentElement.lang = lang;
+        buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+          const val = copy[lang]?.[el.dataset.i18n];
+          if (val) el.textContent = val;
+        });
+      }
+      buttons.forEach((b) => b.addEventListener("click", () => setLang(b.dataset.lang)));
+    </script>
+  </body>
+</html>

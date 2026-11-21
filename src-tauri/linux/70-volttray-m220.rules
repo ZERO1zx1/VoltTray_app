@@ -1,0 +1,8 @@
+# Only the vendor configuration interface (MI_02), never mouse/keyboard input.
+# Match interface and USB device in separate rules: udev ATTRS in one rule
+# must all match the same ancestor.
+SUBSYSTEM!="hidraw", GOTO="volttray_m220_end"
+ATTRS{bInterfaceNumber}!="02", GOTO="volttray_m220_end"
+ATTRS{idVendor}=="248a", ATTRS{idProduct}=="5d2e", TAG+="uaccess"
+ATTRS{idVendor}=="249a", ATTRS{idProduct}=="5c2f", TAG+="uaccess"
+LABEL="volttray_m220_end"
