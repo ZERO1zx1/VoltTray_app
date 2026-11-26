@@ -14,7 +14,7 @@ npm ci
 npm run tauri:dev
 ```
 
-Vite/Express хөгжүүлэлтийн сервер `127.0.0.1:3000` дээр ажиллана. Tauri аппын Linux хувилбар hardware мэдээллийг sysfs/UPower-оос, Windows хувилбар Windows-ийн native API-аас уншина.
+Vite хөгжүүлэлтийн сервер `127.0.0.1:3000` дээр ажиллана. Tauri аппын Linux хувилбар hardware мэдээллийг sysfs/UPower-оос, Windows хувилбар Windows-ийн native API-аас уншина.
 
 ## Release build
 
@@ -31,8 +31,16 @@ Release executable болон frontend нь нэг native апп болно; а�
 
 ### Түгээх багц
 
+Linux:
+
 ```bash
-npm run tauri:build
+npm run tauri:build -- --bundles deb,appimage
+```
+
+Windows:
+
+```powershell
+npm run tauri:build -- --bundles nsis,msi
 ```
 
 Гаралтын файлууд:
@@ -79,9 +87,9 @@ bash scripts/install-m220-access.sh
 
 `gtk_widget_get_scale_factor: assertion 'GTK_IS_WIDGET (widget)' failed` гарсан ч widget хэвийн ажиллаж байж болно. 2026-11-15-ны локал debugger шалгалтаар энэ орчны дуудлагын зам нь `libappindicator3.so.1 → gtk_status_icon_set_from_file → gtk_widget_get_scale_factor` байсан. Хэрэглэгч цонх, товчлуурууд ажиллаж байгааг баталсан. Энэ тохиолдолд startup failure гэж үзэхгүй; GTK log-ийг глобалаар хаах шаардлагагүй. Цонх харагдахгүй эсвэл процесс хаагдвал тусдаа шинж тэмдэг тул дахин оношилно.
 
-npm 12-ийн `install scripts blocked` анхааруулгыг шийдэхээр `package.json`-д зөвхөн `esbuild@0.28.2` install script-ийг зөвшөөрсөн. `npm install-scripts ls` нь unreviewed script байхгүй, `npm rebuild esbuild` амжилттай, TypeScript transform бодитоор ажиллаж байгааг шалгасан. esbuild хувилбар солигдвол шинэ хувилбарын script-ийг дахин хянана.
+npm 12 дээр `esbuild`-ийн install script блоклогдсон тухай анхааруулга гарч болно. Төсөлд install script-ийн тусгай allowlist тохируулаагүй. Анхааруулга дангаараа build бүтэлгүйтсэнийг илэрхийлэхгүй; `npm test` болон `npm run build`-ийн үр дүнг шалгана. CI нь Node.js 22-той хамт ирэх npm хувилбарыг ашигладаг.
 
-Release апп autostart-аар ажиллаж байхад development аппыг асаавал хоёр tray icon харагдаж болно. Нэгийг нь хаахдаа тухайн tray цэсний **Quit**-ийг ашиглана.
+Шинэ хувилбар single-instance хамгаалалттай: дахин нээхэд ажиллаж буй аппын popup цонхыг харуулна. Хуучин хувилбараас шинэчилж байгаа эсвэл development хувилбарыг турших бол эхлээд ажиллаж буй аппыг tray цэсний **Quit**-ээр хаана.
 
 ## Шалгах командууд
 

@@ -5,6 +5,7 @@ import {
   formatDesktopEntry,
   parseCliArgs,
   selectReleaseAsset,
+  verifyReleaseChecksum,
 } from "./cliCore.mjs";
 
 test("parseCliArgs parses commands, flags, language, and rejects invalid arguments", () => {
@@ -32,6 +33,17 @@ test("parseCliArgs parses commands, flags, language, and rejects invalid argumen
   assert.ok(parseCliArgs(["install", "--lang", "fr"]).error);
   assert.ok(parseCliArgs(["install", "--version"]).error);
   assert.ok(parseCliArgs(["badcmd"]).error);
+});
+
+test("release checksums accept the exact asset and reject corruption or ambiguous entries", () => {
+  const hash = "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824";
+  const filename = "VoltTray_1.0.0_amd64.AppImage";
+  const manifest = `${hash}  ${filename}\n`;
+  assert.doesNotThrow(() => verifyReleaseChecksum(manifest, filename, Buffer.from("hello")));
+  assert.throws(() => verifyReleaseChecksum(manifest, filename, Buffer.from("corrupt")), /mismatch/);
+  assert.throws(() => verifyReleaseChecksum(manifest, "Other.AppImage", Buffer.from("hello")), /Expected one/);
+  assert.throws(() => verifyReleaseChecksum(manifest + manifest, filename, Buffer.from("hello")), /Expected one/);
+  assert.throws(() => verifyReleaseChecksum(manifest, "../escape", Buffer.from("hello")), /Invalid/);
 });
 
 test("selectReleaseAsset picks platform-appropriate installers and ignores mismatches", () => {

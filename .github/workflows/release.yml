@@ -4,44 +4,16 @@ on:
   push:
     tags:
       - "v*"
-  workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  create-release:
-    runs-on: ubuntu-latest
-    outputs:
-      release_id: ${{ steps.create.outputs.release_id }}
-      tag_name: ${{ steps.create.outputs.tag_name }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Create or reuse draft release
-        id: create
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION="$(node -p "require('./package.json').version")"
-          TAG="v${VERSION}"
-          echo "tag_name=${TAG}" >> "$GITHUB_OUTPUT"
-
-          RELEASE_ID="$(gh api "repos/${GITHUB_REPOSITORY}/releases" --jq ".[] | select(.tag_name == \"${TAG}\") | .id" | head -n 1 || true)"
-          if [ -z "$RELEASE_ID" ]; then
-            RELEASE_ID="$(gh api -X POST "repos/${GITHUB_REPOSITORY}/releases" \
-              -f tag_name="${TAG}" \
-              -f target_commitish="${GITHUB_SHA}" \
-              -f name="VoltTray ${TAG}" \
-              -f body="Local-first, read-only system tray battery monitor for Windows and Linux." \
-              -F draft=true \
-              -F prerelease=false \
-              --jq '.id')"
-          fi
-          echo "release_id=${RELEASE_ID}" >> "$GITHUB_OUTPUT"
-
   publish-tauri:
-    needs: create-release
     strategy:
       fail-fast: false
       matrix:
@@ -59,23 +31,27 @@ jobs:
         with:
           node-version: 22
 
+      - name: Verify release tag matches the app version
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const app = JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json', 'utf8'));
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          if (process.env.GITHUB_REF_NAME !== `v${app.version}` || pkg.version !== app.version) {
+            throw new Error('Release tag, package.json, and tauri.conf.json versions must match');
+          }
+          NODE
+
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Install Linux Tauri dependencies
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev \
-            patchelf \
-            libssl-dev \
-            libxdo-dev \
-            file
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
 
-      - run: npm install
+      - run: npm ci
       - run: npm run typecheck
       - run: npm test
 
@@ -83,17 +59,73 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          releaseId: ${{ needs.create-release.outputs.release_id }}
+          tagName: v__VERSION__
+          releaseName: "VoltTray v__VERSION__"
+          releaseBody: "Local-first, read-only system tray battery monitor for Windows and Linux."
+          releaseDraft: true
+          prerelease: false
           args: ${{ matrix.args }}
 
-  finalize-release:
-    needs: [create-release, publish-tauri]
+      - name: Smoke-test Linux release CLI without a display
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          unset DISPLAY WAYLAND_DISPLAY
+          binary=src-tauri/target/release/volttray
+          "$binary" --help
+          "$binary" --version
+          "$binary" status --json > snapshot.json
+          node --input-type=module -e "import fs from 'node:fs'; const s = JSON.parse(fs.readFileSync('snapshot.json', 'utf8')); if (!Array.isArray(s.devices)) throw new Error('Invalid hardware snapshot');"
+          if "$binary" --invalid-option; then
+            echo "Invalid CLI argument unexpectedly succeeded" >&2
+            exit 1
+          else
+            test "$?" -eq 2
+          fi
+
+      - name: Smoke-test Windows release CLI
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $Binary = Join-Path $PWD 'src-tauri/target/release/volttray.exe'
+          function Invoke-VoltTray([string[]]$CliArgs, [int]$ExpectedCode) {
+            $Stdout = Join-Path $env:RUNNER_TEMP 'volttray-stdout.txt'
+            $Stderr = Join-Path $env:RUNNER_TEMP 'volttray-stderr.txt'
+            $Process = Start-Process -FilePath $Binary -ArgumentList $CliArgs -Wait -PassThru -NoNewWindow -RedirectStandardOutput $Stdout -RedirectStandardError $Stderr
+            $Output = Get-Content $Stdout -Raw
+            if ($Process.ExitCode -ne $ExpectedCode) {
+              Get-Content $Stderr | Write-Host
+              throw "CLI exit code $($Process.ExitCode), expected $ExpectedCode"
+            }
+            return $Output
+          }
+          $Help = Invoke-VoltTray -CliArgs @('--help') -ExpectedCode 0
+          if ($Help -notmatch 'VoltTray') { throw 'Missing CLI help output' }
+          $Version = Invoke-VoltTray -CliArgs @('--version') -ExpectedCode 0
+          if ($Version.Trim() -ne "VoltTray $($env:GITHUB_REF_NAME.Substring(1))") { throw 'Unexpected CLI version' }
+          $Snapshot = Invoke-VoltTray -CliArgs @('status', '--json') -ExpectedCode 0 | ConvertFrom-Json
+          if ($null -eq $Snapshot -or $null -eq $Snapshot.devices) { throw 'Invalid hardware snapshot' }
+          Invoke-VoltTray -CliArgs @('--invalid-option') -ExpectedCode 2 | Out-Null
+
+  release-checksums:
+    needs: publish-tauri
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Publish release
+      - name: Download all draft release assets and upload SHA256SUMS
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh api -X PATCH "repos/${GITHUB_REPOSITORY}/releases/${{ needs.create-release.outputs.release_id }}" \
-            -F draft=false \
-            -f make_latest=true
+          mkdir release-assets
+          gh release download "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --dir release-assets
+          cd release-assets
+          # Refuse an incomplete release, even if the upload step returned success.
+          for pattern in '*.AppImage' '*.deb' '*-setup.exe' '*.msi'; do
+            compgen -G "$pattern" > /dev/null || { echo "Missing release asset: $pattern" >&2; exit 1; }
+          done
+          find . -maxdepth 1 -type f ! -name SHA256SUMS.txt -printf '%f\0' \
+            | LC_ALL=C sort -z \
+            | xargs -0 -r sha256sum > SHA256SUMS.txt
+          sha256sum -c SHA256SUMS.txt
+          gh release upload "$GITHUB_REF_NAME" SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --clobber

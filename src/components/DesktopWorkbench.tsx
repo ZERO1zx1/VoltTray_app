@@ -63,7 +63,8 @@ const WORKBENCH_COPY: Record<
       error: "Sync Error",
     },
     acPower: "AC Charger",
-    controlsHint: "Drag battery sliders below threshold to trigger native alert",
+    controlsHint:
+      "Drag battery sliders below threshold to trigger native alert",
     chargingBtn: "Charging",
     dischargingBtn: "Battery",
     trayHiddenTitle: "VoltTray is running quietly in the system tray.",
@@ -137,9 +138,12 @@ function makeScenarioDevices(id: ScenarioId): {
       charger: false,
       syncError: false,
       devices: INITIAL_DEVICES.map((d, idx) => {
-        if (idx === 0) return { ...d, batteryPct: 42, chargingState: "discharging" };
-        if (idx === 1) return { ...d, batteryPct: 14, chargingState: "discharging" };
-        if (idx === 2) return { ...d, batteryPct: 18, chargingState: "discharging" };
+        if (idx === 0)
+          return { ...d, batteryPct: 42, chargingState: "discharging" };
+        if (idx === 1)
+          return { ...d, batteryPct: 14, chargingState: "discharging" };
+        if (idx === 2)
+          return { ...d, batteryPct: 18, chargingState: "discharging" };
         return { ...d };
       }),
     };
@@ -163,8 +167,8 @@ export function DesktopWorkbench({
   onUpdateSettings,
 }: DesktopWorkbenchProps) {
   const [scenario, setScenario] = useState<ScenarioId>("connected");
-  const [devices, setDevices] = useState<PeripheralDevice[]>(() =>
-    makeScenarioDevices("connected").devices,
+  const [devices, setDevices] = useState<PeripheralDevice[]>(
+    () => makeScenarioDevices("connected").devices,
   );
   const [chargerConnected, setChargerConnected] = useState(true);
   const [syncError, setSyncError] = useState(false);
@@ -272,14 +276,13 @@ export function DesktopWorkbench({
 
   const lowestPct = devices
     .filter((d) => hasBatteryReading(d))
-    .reduce<number | null>(
-      (min, d) => (min === null ? d.batteryPct : Math.min(min, d.batteryPct)),
-      null,
-    );
+    .reduce<
+      number | null
+    >((min, d) => (min === null ? d.batteryPct : Math.min(min, d.batteryPct)), null);
 
   return (
     <div className="mx-auto w-full max-w-[1140px] px-5 py-7 lg:py-9">
-      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_424px]">
+      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_452px]">
         {/* Left: Hardware Simulator + Fixes */}
         <div className="space-y-5">
           <div className="rounded-xl border border-white/[0.08] bg-[#111720] p-5">
@@ -440,9 +443,9 @@ export function DesktopWorkbench({
 
         {/* Right: Authentic 1:1 Desktop Tray Stage (400 x 480) */}
         <div className="flex flex-col items-center">
-          <div className="w-full max-w-[424px] rounded-2xl border border-white/[0.08] bg-[#070A0E] p-3 shadow-[0_24px_70px_rgba(0,0,0,0.6)]">
+          <div className="w-full max-w-[452px] rounded-2xl border border-white/[0.08] bg-[#070A0E] p-3 shadow-[0_24px_70px_rgba(0,0,0,0.6)]">
             {/* Simulated Desktop Canvas Area */}
-            <div className="relative flex h-[504px] flex-col items-center justify-end rounded-xl border border-white/[0.05] bg-[radial-gradient(ellipse_at_top,_#121A26_0%,_#090D13_72%)] p-3">
+            <div className="relative flex h-[506px] flex-col items-center justify-end rounded-xl border border-white/[0.05] bg-[radial-gradient(ellipse_at_top,_#121A26_0%,_#090D13_72%)] p-3">
               {/* Native OS Notification Toast (positioned top-right of viewport so it never covers the 400x480 widget) */}
               {toast && (
                 <div
@@ -460,7 +463,9 @@ export function DesktopWorkbench({
                     <div className="mt-0.5 text-[12.5px] font-semibold text-[#F1F5F9]">
                       {toast.title}
                     </div>
-                    <div className="text-[11.5px] text-[#94A3B8]">{toast.body}</div>
+                    <div className="text-[11.5px] text-[#94A3B8]">
+                      {toast.body}
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -476,7 +481,7 @@ export function DesktopWorkbench({
               {/* Exact 400 x 480 Native Tray Popup Window */}
               {windowOpen ? (
                 <div
-                  className={`h-[480px] w-full max-w-[400px] overflow-hidden rounded-xl border shadow-[0_20px_50px_rgba(0,0,0,0.65)] transition-colors ${
+                  className={`h-[480px] w-full max-w-[400px] shrink-0 overflow-hidden rounded-xl border shadow-[0_20px_50px_rgba(0,0,0,0.65)] transition-colors ${
                     pinned ? "border-[#22C55E]/40" : "border-white/[0.12]"
                   }`}
                 >

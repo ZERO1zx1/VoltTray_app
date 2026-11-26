@@ -110,7 +110,7 @@ fi
 
 command -v curl >/dev/null 2>&1 || { echo "[volttray] Error: curl is required." >&2; exit 1; }
 
-build_from_source() {
+build_from_source() (
   local missing=()
   for tool in git node npm cargo; do
     if ! command -v "$tool" >/dev/null 2>&1; then
@@ -131,11 +131,15 @@ build_from_source() {
   trap 'rm -rf "$tmp_src"' EXIT
 
   log "Cloning https://github.com/$REPO.git..."
-  git clone --depth 1 "https://github.com/$REPO.git" "$tmp_src/volttray"
+  local clone_args=(--depth 1)
+  if [[ "$VERSION" != "latest" ]]; then
+    clone_args+=(--branch "$VERSION")
+  fi
+  git clone "${clone_args[@]}" "https://github.com/$REPO.git" "$tmp_src/volttray"
   cd "$tmp_src/volttray"
 
   log "Installing npm dependencies..."
-  npm install --no-audit --no-fund
+  npm ci --no-audit --no-fund
 
   log "Building native VoltTray binary (this may take a few minutes on first compile)..."
   npm run tauri:build -- --no-bundle
@@ -157,7 +161,7 @@ build_from_source() {
   if [[ -f "$tmp_src/volttray/src-tauri/icons/icon.png" ]]; then
     install -m 644 "$tmp_src/volttray/src-tauri/icons/icon.png" "$ICON_512"
   fi
-}
+)
 
 install_from_release() {
   local arch
@@ -193,13 +197,35 @@ install_from_release() {
     return 1
   fi
 
-  mkdir -p "$APP_DIR" "$BIN_DIR" "$DATA_DIR/applications" "$(dirname "$ICON_128")" "$(dirname "$ICON_512")"
-  local tmp_bin="$TARGET_BIN.download"
+  command -v sha256sum >/dev/null 2>&1 || { log "Error: sha256sum is required." >&2; return 2; }
+  local download_dir tmp_bin manifest expected actual asset_name
+  download_dir="$(mktemp -d)" || return 2
+  tmp_bin="$download_dir/volttray.AppImage"
+  manifest="$download_dir/SHA256SUMS.txt"
+  asset_name="${download_url##*/}"
   log "Downloading $download_url..."
-  curl -fL --progress-bar "$download_url" -o "$tmp_bin"
-  chmod 755 "$tmp_bin"
-  mv -f "$tmp_bin" "$TARGET_BIN"
-  ln -sf "$TARGET_BIN" "$BIN_DIR/volttray"
+  if ! curl -fL --progress-bar "$download_url" -o "$tmp_bin" \
+    || ! curl -fsSL "${download_url%/*}/SHA256SUMS.txt" -o "$manifest"; then
+    rm -rf "$download_dir"
+    log "Error: release or checksum download failed; nothing was installed." >&2
+    return 2
+  fi
+  expected="$(awk -v name="$asset_name" 'length($1) == 64 && substr($0, 67) == name { print $1 }' "$manifest")"
+  actual="$(sha256sum "$tmp_bin")"
+  actual="${actual%% *}"
+  if [[ ! "$expected" =~ ^[[:xdigit:]]{64}$ ]] || [[ "${expected,,}" != "$actual" ]]; then
+    rm -rf "$download_dir"
+    log "Error: SHA-256 verification failed; nothing was installed." >&2
+    return 2
+  fi
+  mkdir -p "$APP_DIR" "$BIN_DIR" "$DATA_DIR/applications" "$(dirname "$ICON_128")" "$(dirname "$ICON_512")" || { rm -rf "$download_dir"; return 2; }
+  if ! install -m 755 "$tmp_bin" "$TARGET_BIN.new" \
+    || ! mv -f "$TARGET_BIN.new" "$TARGET_BIN" \
+    || ! ln -sf "$TARGET_BIN" "$BIN_DIR/volttray"; then
+    rm -rf "$download_dir"
+    return 2
+  fi
+  rm -rf "$download_dir"
 
   # Fetch icons from repo so application menu shows the VoltTray icon
   curl -fsSL "https://raw.githubusercontent.com/$REPO/main/src-tauri/icons/128x128.png" -o "$ICON_128" 2>/dev/null || true
@@ -210,7 +236,11 @@ install_from_release() {
 if [[ "$FROM_SOURCE" -eq 1 ]]; then
   build_from_source
 else
-  if ! install_from_release; then
+  if install_from_release; then
+    :
+  else
+    result=$?
+    if [[ "$result" -ne 1 ]]; then exit "$result"; fi
     log "Falling back to local source build..."
     build_from_source
   fi

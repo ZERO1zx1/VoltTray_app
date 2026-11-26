@@ -28,7 +28,13 @@ type InstallTab = "linux" | "windows" | "source";
 
 const INSTALL_COMMANDS: Record<
   InstallTab,
-  { labelEn: string; labelMn: string; command: string; noteEn: string; noteMn: string }
+  {
+    labelEn: string;
+    labelMn: string;
+    command: string;
+    noteEn: string;
+    noteMn: string;
+  }
 > = {
   linux: {
     labelEn: "Linux (curl)",
@@ -155,7 +161,8 @@ const LANDING_COPY = {
         os: "Linux" as const,
         key: "linux" as const,
         source: "/sys/class/power_supply & UPower",
-        devices: "Laptop battery + health %, HID++ mice/keyboards, Bluetooth BAS",
+        devices:
+          "Laptop battery + health %, HID++ mice/keyboards, Bluetooth BAS",
       },
       {
         os: "Linux" as const,
@@ -167,13 +174,15 @@ const LANDING_COPY = {
         os: "Linux" as const,
         key: "linux" as const,
         source: "kAirPods D-Bus & M220 HID",
-        devices: "AirPods Left/Right/Case levels; Valkyrie VK M3 Lite 2.4GHz mouse",
+        devices:
+          "AirPods Left/Right/Case levels; Valkyrie VK M3 Lite 2.4GHz mouse",
       },
       {
         os: "Windows" as const,
         key: "windows" as const,
         source: "Win32_Battery & PnP DEVPKEY",
-        devices: "Laptop battery + WMI design health % and Windows BLE/HID devices",
+        devices:
+          "Laptop battery + WMI design health % and Windows BLE/HID devices",
       },
     ],
     installTitle: "Install in one command",
@@ -182,7 +191,7 @@ const LANDING_COPY = {
     faqTitle: "Common engineering questions",
     faqs: [
       {
-        q: 'Why does my wired keyboard show “—” instead of 0%?',
+        q: "Why does my wired keyboard show “—” instead of 0%?",
         a: "Wired peripherals without an internal battery do not expose battery telemetry. VoltTray marks them as connected with no battery reading rather than faking 0% or triggering false low-battery alerts.",
       },
       {
@@ -296,7 +305,8 @@ const LANDING_COPY = {
         os: "Linux" as const,
         key: "linux" as const,
         source: "/sys/class/power_supply & UPower",
-        devices: "Зөөврийн компьютерын батарей + эрүүл мэнд %, HID++, Bluetooth BAS",
+        devices:
+          "Зөөврийн компьютерын батарей + эрүүл мэнд %, HID++, Bluetooth BAS",
       },
       {
         os: "Linux" as const,
@@ -308,13 +318,15 @@ const LANDING_COPY = {
         os: "Linux" as const,
         key: "linux" as const,
         source: "kAirPods D-Bus & M220 HID",
-        devices: "AirPods зүүн/баруун/кейс хувь; Valkyrie VK M3 Lite 2.4GHz хулгана",
+        devices:
+          "AirPods зүүн/баруун/кейс хувь; Valkyrie VK M3 Lite 2.4GHz хулгана",
       },
       {
         os: "Windows" as const,
         key: "windows" as const,
         source: "Win32_Battery & PnP DEVPKEY",
-        devices: "Компьютерын батарей + WMI эрүүл мэнд % ба Windows BLE/HID төхөөрөмж",
+        devices:
+          "Компьютерын батарей + WMI эрүүл мэнд % ба Windows BLE/HID төхөөрөмж",
       },
     ],
     installTitle: "Нэг командаар суулгах",
@@ -347,7 +359,11 @@ const LANDING_COPY = {
   },
 } as const;
 
-function CalloutIcon({ kind }: { kind: "laptop" | "mouse" | "headset" | "keyboard" }) {
+function CalloutIcon({
+  kind,
+}: {
+  kind: "laptop" | "mouse" | "headset" | "keyboard";
+}) {
   const cls = "h-4 w-4 shrink-0 text-[#22C55E]";
   switch (kind) {
     case "laptop":
@@ -355,7 +371,9 @@ function CalloutIcon({ kind }: { kind: "laptop" | "mouse" | "headset" | "keyboar
     case "mouse":
       return <Mouse className={cls} strokeWidth={1.8} aria-hidden="true" />;
     case "headset":
-      return <Headphones className={cls} strokeWidth={1.8} aria-hidden="true" />;
+      return (
+        <Headphones className={cls} strokeWidth={1.8} aria-hidden="true" />
+      );
     case "keyboard":
       return <Keyboard className={cls} strokeWidth={1.8} aria-hidden="true" />;
   }
@@ -425,7 +443,11 @@ export function LandingPreview({
                   onClick={onOpenDesktopDemo}
                   className="inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-lg bg-[#22C55E] px-5 text-[14px] font-semibold text-[#04140A] transition-colors hover:bg-[#16A34A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22C55E] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0F14]"
                 >
-                  <Zap className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+                  <Zap
+                    className="h-4 w-4"
+                    strokeWidth={2.2}
+                    aria-hidden="true"
+                  />
                   <span>{copy.ctaPrimary}</span>
                 </button>
 
@@ -436,7 +458,10 @@ export function LandingPreview({
                   className="inline-flex h-11 items-center gap-1.5 whitespace-nowrap rounded-lg border border-white/[0.14] bg-[#111720] px-5 text-[14px] font-semibold text-[#F1F5F9] transition-colors hover:border-white/25 hover:bg-[#17202C] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22C55E]"
                 >
                   <span>{copy.ctaSecondary}</span>
-                  <ArrowUpRight className="h-4 w-4 text-[#94A3B8]" aria-hidden="true" />
+                  <ArrowUpRight
+                    className="h-4 w-4 text-[#94A3B8]"
+                    aria-hidden="true"
+                  />
                 </a>
               </div>
 
@@ -444,7 +469,10 @@ export function LandingPreview({
               <div className="mt-7 max-w-[560px] rounded-xl border border-white/[0.09] bg-[#0D1219] p-2">
                 <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] px-2 pb-2">
                   <div className="flex items-center gap-2 text-[12px] text-[#94A3B8]">
-                    <Terminal className="h-3.5 w-3.5 text-[#22C55E]" aria-hidden="true" />
+                    <Terminal
+                      className="h-3.5 w-3.5 text-[#22C55E]"
+                      aria-hidden="true"
+                    />
                     <span>{copy.quickCopyLabel}</span>
                   </div>
                   <div
@@ -484,12 +512,18 @@ export function LandingPreview({
                   >
                     {copiedId === "hero" ? (
                       <>
-                        <Check className="h-3.5 w-3.5 text-[#22C55E]" aria-hidden="true" />
+                        <Check
+                          className="h-3.5 w-3.5 text-[#22C55E]"
+                          aria-hidden="true"
+                        />
                         <span className="text-[#22C55E]">{copy.copied}</span>
                       </>
                     ) : (
                       <>
-                        <Copy className="h-3.5 w-3.5 text-[#94A3B8]" aria-hidden="true" />
+                        <Copy
+                          className="h-3.5 w-3.5 text-[#94A3B8]"
+                          aria-hidden="true"
+                        />
                         <span>{copy.copy}</span>
                       </>
                     )}
@@ -521,7 +555,10 @@ export function LandingPreview({
 
                   <div className="flex h-8 items-center justify-between border-b border-white/[0.05] px-3.5 text-[11px] text-[#CBD5E1]">
                     <span className="inline-flex items-center gap-1.5">
-                      <BatteryCharging className="h-3.5 w-3.5 text-[#22C55E]" aria-hidden="true" />
+                      <BatteryCharging
+                        className="h-3.5 w-3.5 text-[#22C55E]"
+                        aria-hidden="true"
+                      />
                       {copy.heroPopupMeta}
                     </span>
                     <span className="font-mono tabular-nums text-[#94A3B8]">
@@ -548,7 +585,9 @@ export function LandingPreview({
                   </div>
 
                   <div className="flex h-8 items-center justify-between border-t border-white/[0.07] bg-[#0D1219] px-3.5 text-[10.5px] text-[#94A3B8]">
-                    <span className="font-mono tabular-nums">{copy.heroPopupFooter}</span>
+                    <span className="font-mono tabular-nums">
+                      {copy.heroPopupFooter}
+                    </span>
                     <span>{copy.heroPopupAutostart}</span>
                   </div>
                 </div>
@@ -603,7 +642,10 @@ export function LandingPreview({
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_center,#17202C,#0B0F14)]">
-                  <Laptop className="h-12 w-12 text-[#94A3B8]/40" aria-hidden="true" />
+                  <Laptop
+                    className="h-12 w-12 text-[#94A3B8]/40"
+                    aria-hidden="true"
+                  />
                 </div>
               )}
               <div
@@ -860,7 +902,9 @@ export function LandingPreview({
                         <td className="px-4 py-3 font-mono text-[12px] text-[#E2E8F0]">
                           {row.source}
                         </td>
-                        <td className="px-4 py-3 text-[#CBD5E1]">{row.devices}</td>
+                        <td className="px-4 py-3 text-[#CBD5E1]">
+                          {row.devices}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -924,18 +968,27 @@ export function LandingPreview({
                   <button
                     type="button"
                     onClick={() =>
-                      void handleCopy("install", INSTALL_COMMANDS[installTab].command)
+                      void handleCopy(
+                        "install",
+                        INSTALL_COMMANDS[installTab].command,
+                      )
                     }
                     className="inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-white/[0.12] bg-[#111720] px-3.5 text-[12px] font-semibold text-[#F1F5F9] transition-colors hover:border-white/25 hover:bg-[#17202C]"
                   >
                     {copiedId === "install" ? (
                       <>
-                        <Check className="h-3.5 w-3.5 text-[#22C55E]" aria-hidden="true" />
+                        <Check
+                          className="h-3.5 w-3.5 text-[#22C55E]"
+                          aria-hidden="true"
+                        />
                         <span className="text-[#22C55E]">{copy.copied}</span>
                       </>
                     ) : (
                       <>
-                        <Copy className="h-3.5 w-3.5 text-[#94A3B8]" aria-hidden="true" />
+                        <Copy
+                          className="h-3.5 w-3.5 text-[#94A3B8]"
+                          aria-hidden="true"
+                        />
                         <span>{copy.copy}</span>
                       </>
                     )}
@@ -959,7 +1012,9 @@ export function LandingPreview({
                     <button
                       type="button"
                       aria-expanded={isOpen}
-                      onClick={() => setOpenFaq((curr) => (curr === idx ? -1 : idx))}
+                      onClick={() =>
+                        setOpenFaq((curr) => (curr === idx ? -1 : idx))
+                      }
                       className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-[14.5px] font-semibold text-[#F1F5F9] transition-colors hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#22C55E]"
                     >
                       <span>{faq.q}</span>
@@ -1008,7 +1063,10 @@ export function LandingPreview({
       <footer className="py-8 text-[12.5px] text-[#94A3B8]">
         <div className="mx-auto flex max-w-[1140px] flex-wrap items-center justify-between gap-3 px-5 sm:px-6">
           <span className="inline-flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-[#22C55E]" aria-hidden="true" />
+            <ShieldCheck
+              className="h-4 w-4 text-[#22C55E]"
+              aria-hidden="true"
+            />
             <span>{copy.footerLeft}</span>
           </span>
           <span>{copy.footerRight}</span>

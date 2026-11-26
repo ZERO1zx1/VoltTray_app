@@ -12,6 +12,7 @@ import {
   formatDesktopEntry,
   parseCliArgs,
   selectReleaseAsset,
+  verifyReleaseChecksum,
 } from "./cliCore.mjs";
 
 const useColor = Boolean(process.stdout.isTTY) && !process.env.NO_COLOR;
@@ -100,6 +101,8 @@ async function fetchReleaseAndDownload(tag, destDir) {
   if (!picked) {
     throw new Error(`No compatible release asset found for ${process.platform}/${process.arch}.`);
   }
+  const checksums = release.assets.find((asset) => asset.name === "SHA256SUMS.txt");
+  if (!checksums) throw new Error("Release is missing SHA256SUMS.txt");
 
   fs.mkdirSync(destDir, { recursive: true });
   const outFile = path.join(destDir, picked.asset.name);
@@ -109,6 +112,9 @@ async function fetchReleaseAndDownload(tag, destDir) {
   });
   if (!dl.ok) throw new Error(`Download failed (${dl.status}): ${picked.asset.browser_download_url}`);
   const buf = Buffer.from(await dl.arrayBuffer());
+  const sums = await fetch(checksums.browser_download_url);
+  if (!sums.ok) throw new Error(`Checksum download failed (${sums.status})`);
+  verifyReleaseChecksum(await sums.text(), picked.asset.name, buf);
   fs.writeFileSync(outFile, buf);
   return { kind: picked.kind, filePath: outFile };
 }
@@ -191,8 +197,10 @@ async function main() {
       const downloaded = await fetchReleaseAndDownload(opts.releaseTag, tmpDir);
       fs.mkdirSync(plan.paths.appDir, { recursive: true });
       if (downloaded.kind === "appimage") {
-        fs.copyFileSync(downloaded.filePath, plan.paths.binaryPath);
-        fs.chmodSync(plan.paths.binaryPath, 0o755);
+        const staging = `${plan.paths.binaryPath}.new`;
+        fs.copyFileSync(downloaded.filePath, staging);
+        fs.chmodSync(staging, 0o755);
+        fs.renameSync(staging, plan.paths.binaryPath);
       } else if (downloaded.kind === "deb") {
         runChecked("sudo", ["dpkg", "-i", downloaded.filePath]);
       } else if (downloaded.kind === "nsis") {

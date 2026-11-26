@@ -125,12 +125,16 @@ export default function App() {
       const payload = await loadLocalBootstrap(true);
       const ok = applyPayload(payload);
       if (!ok) {
-        showErrorBanner(DICTIONARIES[settingsRef.current.locale].errors.refreshFailed);
+        showErrorBanner(
+          DICTIONARIES[settingsRef.current.locale].errors.refreshFailed,
+        );
       }
     } catch {
       setSyncError(true);
       setLoading(false);
-      showErrorBanner(DICTIONARIES[settingsRef.current.locale].errors.refreshFailed);
+      showErrorBanner(
+        DICTIONARIES[settingsRef.current.locale].errors.refreshFailed,
+      );
     } finally {
       setSyncing(false);
     }
@@ -182,16 +186,13 @@ export default function App() {
       }, 4_000);
     };
 
-    const unsubscribe = subscribeLocalStream(
-      (payload) => {
-        if (fallbackTimer !== null) {
-          window.clearInterval(fallbackTimer);
-          fallbackTimer = null;
-        }
-        applyPayload(payload);
-      },
-      startFallback,
-    );
+    const unsubscribe = subscribeLocalStream((payload) => {
+      if (fallbackTimer !== null) {
+        window.clearInterval(fallbackTimer);
+        fallbackTimer = null;
+      }
+      applyPayload(payload);
+    }, startFallback);
 
     return () => {
       unsubscribe();

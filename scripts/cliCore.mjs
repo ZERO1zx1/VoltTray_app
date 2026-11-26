@@ -1,4 +1,5 @@
 import path from "node:path";
+import { createHash } from "node:crypto";
 
 export const REPO_SLUG = "ZERO1zx1/VoltTray_app";
 export const APP_ID = "app.volttray.monitor";
@@ -198,6 +199,22 @@ export function selectReleaseAsset(assets, platform, arch) {
   }
 
   return null;
+}
+
+/** Verify the exact asset entry, rejecting missing, duplicate, or malformed checksums. */
+export function verifyReleaseChecksum(manifest, filename, contents) {
+  if (path.basename(filename) !== filename || /[\\\r\n]/.test(filename)) {
+    throw new Error("Invalid release asset filename");
+  }
+  const matches = manifest.split(/\r?\n/).flatMap((line) => {
+    const match = /^([a-fA-F0-9]{64}) [ *](.+)$/.exec(line);
+    return match && match[2] === filename ? [match[1].toLowerCase()] : [];
+  });
+  if (matches.length !== 1) {
+    throw new Error(`Expected one SHA256SUMS.txt entry for ${filename}`);
+  }
+  const actual = createHash("sha256").update(contents).digest("hex");
+  if (matches[0] !== actual) throw new Error(`SHA-256 mismatch for ${filename}`);
 }
 
 /** Escape executable path according to XDG Desktop Entry Exec specification. */

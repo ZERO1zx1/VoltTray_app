@@ -5,13 +5,13 @@ use std::fs;
 use std::path::Path;
 
 #[cfg(target_os = "linux")]
-mod kairpods;
+mod device_groups;
 #[cfg(target_os = "linux")]
-mod usb_identity;
+mod kairpods;
 #[cfg(target_os = "linux")]
 mod m220;
 #[cfg(target_os = "linux")]
-mod device_groups;
+mod usb_identity;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -52,8 +52,11 @@ pub struct BatteryComponent {
 fn bluetooth_identity(native_path: &str) -> Option<String> {
     let address = native_path.rsplit("dev_").next()?.replace('_', ":");
     let parts: Vec<_> = address.split(':').collect();
-    (parts.len() == 6 && parts.iter().all(|p| p.len() == 2 && p.bytes().all(|c| c.is_ascii_hexdigit())))
-        .then(|| format!("bluetooth:{}", address.to_ascii_lowercase()))
+    (parts.len() == 6
+        && parts
+            .iter()
+            .all(|p| p.len() == 2 && p.bytes().all(|c| c.is_ascii_hexdigit())))
+    .then(|| format!("bluetooth:{}", address.to_ascii_lowercase()))
 }
 
 #[cfg(target_os = "linux")]
@@ -78,10 +81,13 @@ fn sanitize_model_label(model: &str) -> String {
     }
     // Skip bare MAC addresses like aa:bb:cc:dd:ee:ff
     let is_mac = trimmed.len() == 17
-        && trimmed
-            .chars()
-            .enumerate()
-            .all(|(i, c)| if i % 3 == 2 { c == ':' || c == '-' } else { c.is_ascii_hexdigit() });
+        && trimmed.chars().enumerate().all(|(i, c)| {
+            if i % 3 == 2 {
+                c == ':' || c == '-'
+            } else {
+                c.is_ascii_hexdigit()
+            }
+        });
     if is_mac {
         return String::new();
     }
@@ -107,11 +113,13 @@ fn has_bluetooth_token(hint: &str) -> bool {
     if lower.contains("bluez") || lower.contains("bluetooth") {
         return true;
     }
-    lower.split(|c: char| !c.is_ascii_alphanumeric()).any(|tok| {
-        tok == "ble"
-            || tok == "bt"
-            || (tok.starts_with("hci") && tok[3..].chars().all(|c| c.is_ascii_digit()))
-    })
+    lower
+        .split(|c: char| !c.is_ascii_alphanumeric())
+        .any(|tok| {
+            tok == "ble"
+                || tok == "bt"
+                || (tok.starts_with("hci") && tok[3..].chars().all(|c| c.is_ascii_digit()))
+        })
 }
 
 fn infer_type(name: &str, model: &str, scope: &str) -> (&'static str, &'static str, &'static str) {
@@ -193,6 +201,8 @@ fn infer_type(name: &str, model: &str, scope: &str) -> (&'static str, &'static s
     }
 }
 
+// This boundary maps each independently probed hardware fact into the shared DTO.
+#[allow(clippy::too_many_arguments)]
 fn make_device_dto(
     slot_idx: usize,
     dev_type: &str,
@@ -511,10 +521,8 @@ fn probe_upower() -> (bool, Vec<PeripheralDeviceDto>) {
                             }
                         }
                     }
-                    k_other if is_upower_kind(k_other) => {
-                        if kind.is_empty() {
-                            kind = k_other.to_string();
-                        }
+                    k_other if is_upower_kind(k_other) && kind.is_empty() => {
+                        kind = k_other.to_string();
                     }
                     _ => {}
                 }
@@ -565,8 +573,11 @@ fn probe_upower() -> (bool, Vec<PeripheralDeviceDto>) {
             }
         }
 
-        let hint = format!("{} {} {} {} {}", obj_path, native_path, model, vendor, icon_name)
-            .to_lowercase();
+        let hint = format!(
+            "{} {} {} {} {}",
+            obj_path, native_path, model, vendor, icon_name
+        )
+        .to_lowercase();
         let is_system_laptop = obj_path.contains("battery_bat")
             || (kind == "battery"
                 && power_supply
@@ -606,8 +617,8 @@ fn probe_upower() -> (bool, Vec<PeripheralDeviceDto>) {
             "wired_usb"
         } else if has_bluetooth_token(&hint) {
             "bluetooth"
-        } else if charging_state == "charging" || (dev_type == "other"
-            && (hint.contains("usb") || kind == "phone" || kind == "ups"))
+        } else if charging_state == "charging"
+            || (dev_type == "other" && (hint.contains("usb") || kind == "phone" || kind == "ups"))
         {
             "wired_usb"
         } else {
@@ -834,7 +845,21 @@ fn probe_usb_hidraw() -> Vec<PeripheralDeviceDto> {
         let (_, input_type) = usb_identity::interface(&entry.path().join("device"));
         if hid_name.is_empty() {
             let id = uevent_value(&uevent, "HID_ID");
-            let key = id.split(':').skip(1).map(|part| part.chars().rev().take(4).collect::<String>().chars().rev().collect::<String>().to_lowercase()).collect::<Vec<_>>().join(":");
+            let key = id
+                .split(':')
+                .skip(1)
+                .map(|part| {
+                    part.chars()
+                        .rev()
+                        .take(4)
+                        .collect::<String>()
+                        .chars()
+                        .rev()
+                        .collect::<String>()
+                        .to_lowercase()
+                })
+                .collect::<Vec<_>>()
+                .join(":");
             hid_name = names.get(&key).cloned().unwrap_or_default();
         }
         let name_lower = hid_name.trim().to_lowercase();
@@ -948,8 +973,11 @@ fn merge_linux_devices(merged: &mut Vec<PeripheralDeviceDto>, extra: Vec<Periphe
         }
         if !dev.battery_available {
             let covered = merged.iter().any(|ex| {
-                ex.battery_available && ((ex.device_id.is_some() && ex.device_id == dev.device_id)
-                    || (ex.connection_type == dev.connection_type && !is_generic_label(&ex.label_en) && ex.label_en == dev.label_en))
+                ex.battery_available
+                    && ((ex.device_id.is_some() && ex.device_id == dev.device_id)
+                        || (ex.connection_type == dev.connection_type
+                            && !is_generic_label(&ex.label_en)
+                            && ex.label_en == dev.label_en))
             });
             if covered {
                 continue;
@@ -972,7 +1000,9 @@ fn merge_linux_devices(merged: &mut Vec<PeripheralDeviceDto>, extra: Vec<Periphe
                     || is_generic_label(&dev.label_en)
                     || ex.label_en == dev.label_en)
         }) {
-            if ex.device_id.is_none() { ex.device_id = dev.device_id.clone(); }
+            if ex.device_id.is_none() {
+                ex.device_id = dev.device_id.clone();
+            }
             if is_generic_label(&ex.label_en) && !is_generic_label(&dev.label_en) {
                 ex.label_en = dev.label_en;
                 ex.label_mn = dev.label_mn;
@@ -1031,7 +1061,10 @@ pub fn probe_linux_snapshot() -> (bool, Vec<PeripheralDeviceDto>) {
     let any_charging = merged
         .iter()
         .any(|d| d.battery_available && d.charging_state == "charging");
-    (sys_charger || up_charger || any_charging, device_groups::apply(merged))
+    (
+        sys_charger || up_charger || any_charging,
+        device_groups::apply(merged),
+    )
 }
 
 #[cfg(target_os = "linux")]

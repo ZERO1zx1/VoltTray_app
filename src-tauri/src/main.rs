@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod autostart;
+mod cli;
 mod hardware;
 mod notifications;
 
@@ -85,7 +86,10 @@ fn load_alert_settings_from_disk(app: &AppHandle) -> AlertSettings {
                 cfg.locale = locale.to_string();
             }
         }
-        if let Some(enabled) = settings.get("notificationsEnabled").and_then(|v| v.as_bool()) {
+        if let Some(enabled) = settings
+            .get("notificationsEnabled")
+            .and_then(|v| v.as_bool())
+        {
             cfg.notifications_enabled = enabled;
         }
         if let Some(threshold) = settings
@@ -237,12 +241,7 @@ fn get_local_bootstrap(
         .and_then(|s| s.get("settings").cloned())
         .unwrap_or(Value::Null);
 
-    let os_name = match std::env::consts::OS {
-        "windows" => "windows",
-        "macos" => "macos",
-        "linux" => "linux",
-        other => other,
-    };
+    let os_name = std::env::consts::OS;
 
     serde_json::json!({
         "mode": "tauri_local",
@@ -315,10 +314,40 @@ fn toggle_main_window(app: &AppHandle) {
     }
 }
 
+#[cfg(target_os = "windows")]
+fn attach_parent_console() {
+    #[link(name = "kernel32")]
+    unsafe extern "system" {
+        #[link_name = "AttachConsole"]
+        fn attach_console(process_id: u32) -> i32;
+    }
+    const ATTACH_PARENT_PROCESS: u32 = u32::MAX;
+    // GUI-subsystem release builds still need to write CLI output to the invoking shell.
+    unsafe {
+        let _ = attach_console(ATTACH_PARENT_PROCESS);
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn attach_parent_console() {}
+
 fn main() {
-    let start_minimized = std::env::args().any(|a| a == "--minimized");
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.iter().any(|arg| arg != "--minimized") {
+        attach_parent_console();
+    }
+    if let Some(code) = cli::run(&args) {
+        std::process::exit(code);
+    }
+    let start_minimized = args.iter().any(|arg| arg == "--minimized");
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.set_focus();
+            }
+        }))
         .manage(Mutex::new(SnapshotCache::default()))
         .setup(move |app| {
             // Hydrate alert settings before background threads run
@@ -494,35 +523,66 @@ mod tests {
         };
 
         let low = sample_mouse(18, "discharging");
-        assert!(evaluate_background_low_battery(&[low.clone()], &disabled_settings, &mut alerted).is_empty());
+        assert!(evaluate_background_low_battery(
+            std::slice::from_ref(&low),
+            &disabled_settings,
+            &mut alerted
+        )
+        .is_empty());
 
-        let first = evaluate_background_low_battery(&[low.clone()], &enabled_settings, &mut alerted);
+        let first = evaluate_background_low_battery(
+            std::slice::from_ref(&low),
+            &enabled_settings,
+            &mut alerted,
+        );
         assert_eq!(first.len(), 1);
         assert!(first[0].0.contains("18%"));
 
         // Repeat at 18% must not re-fire
-        assert!(evaluate_background_low_battery(&[low.clone()], &enabled_settings, &mut alerted).is_empty());
+        assert!(evaluate_background_low_battery(
+            std::slice::from_ref(&low),
+            &enabled_settings,
+            &mut alerted
+        )
+        .is_empty());
 
         // Inside +5% hysteresis band (24 <= 25): still silenced
         let band = sample_mouse(24, "discharging");
-        assert!(evaluate_background_low_battery(&[band], &enabled_settings, &mut alerted).is_empty());
-        assert!(evaluate_background_low_battery(&[low.clone()], &enabled_settings, &mut alerted).is_empty());
+        assert!(
+            evaluate_background_low_battery(&[band], &enabled_settings, &mut alerted).is_empty()
+        );
+        assert!(evaluate_background_low_battery(
+            std::slice::from_ref(&low),
+            &enabled_settings,
+            &mut alerted
+        )
+        .is_empty());
 
         // Above +5% band (26 > 25): resets alert state
         let recharged = sample_mouse(26, "discharging");
-        assert!(evaluate_background_low_battery(&[recharged], &enabled_settings, &mut alerted).is_empty());
+        assert!(
+            evaluate_background_low_battery(&[recharged], &enabled_settings, &mut alerted)
+                .is_empty()
+        );
         assert_eq!(
-            evaluate_background_low_battery(&[low.clone()], &enabled_settings, &mut alerted).len(),
+            evaluate_background_low_battery(
+                std::slice::from_ref(&low),
+                &enabled_settings,
+                &mut alerted
+            )
+            .len(),
             1
         );
 
         // Charging resets alert state immediately
         let charging = sample_mouse(19, "charging");
-        assert!(evaluate_background_low_battery(&[charging], &enabled_settings, &mut alerted).is_empty());
+        assert!(
+            evaluate_background_low_battery(&[charging], &enabled_settings, &mut alerted)
+                .is_empty()
+        );
         assert_eq!(
             evaluate_background_low_battery(&[low], &enabled_settings, &mut alerted).len(),
             1
         );
     }
 }
-

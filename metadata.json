@@ -1,6 +1,0 @@
-{
-  "name": "VoltTray",
-  "description": "Local-first, read-only system tray battery monitor for Windows and Linux peripherals.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

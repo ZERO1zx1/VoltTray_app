@@ -12,7 +12,8 @@
   --emerald-dim: rgba(34, 197, 94, 0.14);
   --crimson: #ef4444;
   --radius: 14px;
-  --font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans:
+    "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
@@ -107,7 +108,10 @@ a {
   white-space: nowrap;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
 }
 
 .btn-sm {
@@ -141,7 +145,11 @@ a {
   position: relative;
   padding: 64px 0 72px;
   border-bottom: 1px solid var(--border);
-  background: radial-gradient(ellipse 65% 55% at 72% 16%, rgba(34, 197, 94, 0.08), transparent 70%);
+  background: radial-gradient(
+    ellipse 65% 55% at 72% 16%,
+    rgba(34, 197, 94, 0.08),
+    transparent 70%
+  );
 }
 
 .hero-grid {
@@ -426,10 +434,19 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
-.ok { color: var(--emerald); }
-.mid { color: var(--ink); }
-.low { color: var(--crimson); }
-.none, .muted { color: var(--ink-muted); }
+.ok {
+  color: var(--emerald);
+}
+.mid {
+  color: var(--ink);
+}
+.low {
+  color: var(--crimson);
+}
+.none,
+.muted {
+  color: var(--ink-muted);
+}
 
 .device-sub {
   margin-top: 2px;
@@ -451,8 +468,12 @@ a {
   border-radius: 99px;
 }
 
-.bar-ok { background: var(--emerald); }
-.bar-low { background: var(--crimson); }
+.bar-ok {
+  background: var(--emerald);
+}
+.bar-low {
+  background: var(--crimson);
+}
 
 .comp-grid {
   display: grid;
@@ -542,7 +563,12 @@ a {
 .desk-scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, #0b0f14, rgba(11, 15, 20, 0.25) 45%, transparent);
+  background: linear-gradient(
+    to top,
+    #0b0f14,
+    rgba(11, 15, 20, 0.25) 45%,
+    transparent
+  );
 }
 
 .desk-rail {
@@ -589,8 +615,12 @@ a {
   gap: 20px;
 }
 
-.span-7 { grid-column: span 7; }
-.span-5 { grid-column: span 5; }
+.span-7 {
+  grid-column: span 7;
+}
+.span-5 {
+  grid-column: span 5;
+}
 
 .card {
   display: flex;
