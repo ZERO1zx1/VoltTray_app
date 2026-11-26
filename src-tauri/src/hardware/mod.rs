@@ -1105,10 +1105,11 @@ pub fn probe_peripherals() -> Vec<PeripheralDeviceDto> {
       } catch {}
       $pnp = @(Get-PnpDevice -PresentOnly -ErrorAction SilentlyContinue | ForEach-Object {
         $prop = Get-PnpDeviceProperty -InstanceId $_.InstanceId -KeyName '{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2' -ErrorAction SilentlyContinue
-        if ($prop -and $prop.Data -ne $null) {
+        if (($prop -and $prop.Data -ne $null) -or $_.Class -eq 'Mouse') {
           [PSCustomObject]@{
             Name = $_.FriendlyName
-            Battery = [int]$prop.Data
+            Battery = $(if ($prop -and $prop.Data -ne $null) { [int]$prop.Data } else { $null })
+            Class = $_.Class
             InstanceId = $_.InstanceId
           }
         }
@@ -1181,9 +1182,14 @@ pub fn probe_peripherals() -> Vec<PeripheralDeviceDto> {
             let Some(fname) = item.get("Name").and_then(|v| v.as_str()) else {
                 continue;
             };
-            let Some(pct) = item.get("Battery").and_then(|v| v.as_u64()) else {
+            let pct = item
+                .get("Battery")
+                .and_then(|v| v.as_u64())
+                .filter(|v| *v <= 100);
+            let is_mouse = item.get("Class").and_then(|v| v.as_str()) == Some("Mouse");
+            if pct.is_none() && !is_mouse {
                 continue;
-            };
+            }
             let inst = item
                 .get("InstanceId")
                 .and_then(|v| v.as_str())
@@ -1200,22 +1206,31 @@ pub fn probe_peripherals() -> Vec<PeripheralDeviceDto> {
             } else {
                 "upower_generic"
             };
-            let (dev_type, label_en, label_mn) = infer_type(fname, fname, "Device");
+            let (dev_type, label_en, label_mn) = if is_mouse {
+                ("mouse", "Mouse", "Хулгана")
+            } else {
+                infer_type(fname, fname, "Device")
+            };
             let mut dto = make_device_dto(
                 devices.len(),
                 dev_type,
                 label_en,
                 label_mn,
                 fname,
-                pct.min(100) as u8,
-                "discharging",
+                pct.unwrap_or(0) as u8,
+                if pct.is_some() {
+                    "discharging"
+                } else {
+                    "unknown"
+                },
                 conn,
                 driver,
             );
             if !inst.is_empty() {
                 dto.device_id = Some(format!("winpnp:{}", inst));
             }
-            dto.battery_source = Some("Windows PnP".to_string());
+            dto.battery_available = pct.is_some();
+            dto.battery_source = pct.map(|_| "Windows PnP".to_string());
             devices.push(dto);
         }
     }
