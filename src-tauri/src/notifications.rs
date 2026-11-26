@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-#[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
 use std::process::{Command, Stdio};
 
 #[cfg(target_os = "windows")]
@@ -87,43 +86,25 @@ fn escape_applescript_string(input: &str) -> String {
         .replace(['\r', '\n'], " ")
 }
 
-pub fn send_native_notification(title: &str, body: &str) -> Option<&'static str> {
+fn native_notification_command(title: &str, body: &str) -> Option<(&'static str, Command)> {
     #[cfg(target_os = "linux")]
     {
         if !cmd_exists("notify-send") {
             return None;
         }
-        let title_owned = title.to_string();
-        let body_owned = body.to_string();
-        // Spawn and reap on a dedicated background thread so the Tauri command thread never blocks
-        // and no zombie child processes accumulate.
-        std::thread::spawn(move || {
-            let args = build_linux_notify_args(&title_owned, &body_owned);
-            let _ = Command::new("notify-send")
-                .args(args)
-                .stdin(Stdio::null())
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .status();
-        });
-        Some("notify-send")
+        let mut command = Command::new("notify-send");
+        command.args(build_linux_notify_args(title, body));
+        Some(("notify-send", command))
     }
 
     #[cfg(target_os = "windows")]
     {
         let script = build_windows_toast_script(title, body);
-        // Dispatch a native WinRT Toast notification (no NotifyIcon, no Start-Sleep, no orphan tray icon)
-        // and reap the short-lived PowerShell process on a background thread.
-        std::thread::spawn(move || {
-            let _ = Command::new("powershell")
-                .args(["-NoProfile", "-NonInteractive", "-Command", &script])
-                .creation_flags(CREATE_NO_WINDOW)
-                .stdin(Stdio::null())
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .status();
-        });
-        Some("windows_winrt_toast")
+        let mut command = Command::new("powershell");
+        command
+            .args(["-NoProfile", "-NonInteractive", "-Command", &script])
+            .creation_flags(CREATE_NO_WINDOW);
+        Some(("windows_winrt_toast", command))
     }
 
     #[cfg(target_os = "macos")]
@@ -131,15 +112,9 @@ pub fn send_native_notification(title: &str, body: &str) -> Option<&'static str>
         let safe_title = escape_applescript_string(title);
         let safe_body = escape_applescript_string(body);
         let script = format!("display notification \"{safe_body}\" with title \"{safe_title}\"");
-        std::thread::spawn(move || {
-            let _ = Command::new("osascript")
-                .args(["-e", &script])
-                .stdin(Stdio::null())
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .status();
-        });
-        Some("macos_osascript")
+        let mut command = Command::new("osascript");
+        command.args(["-e", &script]);
+        Some(("macos_osascript", command))
     }
 
     #[cfg(not(any(target_os = "linux", target_os = "windows", target_os = "macos")))]
@@ -147,6 +122,37 @@ pub fn send_native_notification(title: &str, body: &str) -> Option<&'static str>
         let _ = (title, body);
         None
     }
+}
+
+fn wait_for_notification(command: &mut Command, backend: &str) -> Result<(), String> {
+    let status = command
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map_err(|error| format!("Could not run {backend}: {error}"))?;
+    if status.success() {
+        Ok(())
+    } else {
+        Err(format!("{backend} failed: {status}"))
+    }
+}
+
+/// Keep the command alive until its child finishes; CLI callers exit immediately afterward.
+pub fn send_native_notification_blocking(title: &str, body: &str) -> Result<&'static str, String> {
+    let (backend, mut command) = native_notification_command(title, body)
+        .ok_or_else(|| "No supported notification backend is available.".to_string())?;
+    wait_for_notification(&mut command, backend)?;
+    Ok(backend)
+}
+
+pub fn send_native_notification(title: &str, body: &str) -> Option<&'static str> {
+    let (backend, mut command) = native_notification_command(title, body)?;
+    // The desktop runtime stays alive while this thread spawns and reaps the child.
+    std::thread::spawn(move || {
+        let _ = wait_for_notification(&mut command, backend);
+    });
+    Some(backend)
 }
 
 pub fn execute_notification_action(req: NotificationRequestDto) -> NotificationResultDto {
@@ -178,6 +184,42 @@ pub fn execute_notification_action(req: NotificationRequestDto) -> NotificationR
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[cfg(any(unix, target_os = "windows"))]
+    #[test]
+    fn notification_dispatch_waits_and_reports_backend_failure() {
+        let nonce = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let marker = std::env::temp_dir().join(format!("volttray-notify-{nonce}"));
+        #[cfg(unix)]
+        let mut command = {
+            let mut command = Command::new("sh");
+            command.args(["-c", "sleep 0.05; printf done > \"$1\"; exit 7", "sh"]);
+            command.arg(&marker);
+            command
+        };
+        #[cfg(target_os = "windows")]
+        let mut command = {
+            let mut command = Command::new("powershell");
+            command.args([
+                "-NoProfile",
+                "-NonInteractive",
+                "-Command",
+                "Start-Sleep -Milliseconds 50; Set-Content -LiteralPath $env:VOLTTRAY_NOTIFY_MARKER -Value done; exit 7",
+            ]);
+            command.env("VOLTTRAY_NOTIFY_MARKER", &marker);
+            command
+        };
+        let result = wait_for_notification(&mut command, "test-backend");
+        assert!(
+            marker.exists(),
+            "the child must finish before dispatch returns"
+        );
+        let _ = std::fs::remove_file(marker);
+        assert!(result.unwrap_err().contains("test-backend failed"));
+    }
 
     #[test]
     fn linux_notify_args_include_double_dash_separator() {

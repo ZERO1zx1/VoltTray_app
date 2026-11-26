@@ -1,0 +1,40 @@
+name: Device support request
+description: Request read-only battery support for a device.
+title: "[Device support]: "
+labels: ["device-support"]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: Device model
+    validations:
+      required: true
+  - type: input
+    id: connection
+    attributes:
+      label: Connection type
+      placeholder: "Bluetooth, USB, or 2.4 GHz receiver"
+    validations:
+      required: true
+  - type: textarea
+    id: usb
+    attributes:
+      label: lsusb output or VID:PID
+      description: "Linux only. Remove serial numbers before sharing."
+      render: text
+  - type: textarea
+    id: provider
+    attributes:
+      label: Provider output
+      description: "Linux: relevant upower -d lines. Windows: relevant PnP device and battery property details. Remove device identifiers."
+      render: text
+  - type: textarea
+    id: doctor
+    attributes:
+      label: volttray doctor output
+      render: text
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional details
+      description: Mention whether the device reports battery status in another OS tool.

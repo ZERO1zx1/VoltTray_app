@@ -221,15 +221,40 @@ test("parseOpenRazerSysfsEntry and parseHeadsetControlJson parse USB peripheral 
 });
 
 test("USB boot interfaces classify DK68SE and XCTECH regardless of enumeration order", () => {
-  const keyboard = { hidrawName: "hidraw3", hidId: "0003:0000258A:0000013B", hidName: "Sino Wealth DIERYA DK68SE", hidPhys: "usb-controller-3.3/input0", interfaceNumber: 0, inputType: "keyboard" as const };
-  const mouse = { hidrawName: "hidraw0", hidId: "0003:0000249A:00005C2F", hidName: "XCTECH Wireless-Receiver", hidPhys: "usb-controller-1/input0", interfaceNumber: 0, inputType: "mouse" as const };
+  const keyboard = {
+    hidrawName: "hidraw3",
+    hidId: "0003:0000258A:0000013B",
+    hidName: "Sino Wealth DIERYA DK68SE",
+    hidPhys: "usb-controller-3.3/input0",
+    interfaceNumber: 0,
+    inputType: "keyboard" as const,
+  };
+  const mouse = {
+    hidrawName: "hidraw0",
+    hidId: "0003:0000249A:00005C2F",
+    hidName: "XCTECH Wireless-Receiver",
+    hidPhys: "usb-controller-1/input0",
+    interfaceNumber: 0,
+    inputType: "mouse" as const,
+  };
   const result = parseUsbHidrawDevices([
-    { ...mouse, hidPhys: "usb-controller-1/input1", interfaceNumber: 1, inputType: "keyboard" },
-    { ...keyboard, hidPhys: "usb-controller-3.3/input1", interfaceNumber: 1, inputType: undefined },
-    keyboard, mouse,
+    {
+      ...mouse,
+      hidPhys: "usb-controller-1/input1",
+      interfaceNumber: 1,
+      inputType: "keyboard",
+    },
+    {
+      ...keyboard,
+      hidPhys: "usb-controller-3.3/input1",
+      interfaceNumber: 1,
+      inputType: undefined,
+    },
+    keyboard,
+    mouse,
   ]);
-  const k = result.find(d => d.labelEn.includes("DK68SE"))!;
-  const m = result.find(d => d.labelEn.includes("XCTECH"))!;
+  const k = result.find((d) => d.labelEn.includes("DK68SE"))!;
+  const m = result.find((d) => d.labelEn.includes("XCTECH"))!;
   assert.equal(result.length, 2);
   assert.equal(k.type, "keyboard");
   assert.equal(k.connectionType, "wired_usb");
@@ -237,8 +262,23 @@ test("USB boot interfaces classify DK68SE and XCTECH regardless of enumeration o
   assert.equal(m.type, "mouse");
   assert.equal(m.connectionType, "usb_dongle_2_4ghz");
   // Another keyboard's battery must not hide this unrelated USB keyboard.
-  assert.equal(mergeLinuxDevices([{ ...k, deviceId: "other-keyboard", labelEn: "Another Keyboard", batteryAvailable: true }], [k]).length, 2);
-  const generic = parseUsbHidrawDevices([{ ...mouse, hidName: "Wireless Receiver", inputType: undefined }])[0];
+  assert.equal(
+    mergeLinuxDevices(
+      [
+        {
+          ...k,
+          deviceId: "other-keyboard",
+          labelEn: "Another Keyboard",
+          batteryAvailable: true,
+        },
+      ],
+      [k],
+    ).length,
+    2,
+  );
+  const generic = parseUsbHidrawDevices([
+    { ...mouse, hidName: "Wireless Receiver", inputType: undefined },
+  ])[0];
   assert.equal(generic.type, "unknown");
 });
 

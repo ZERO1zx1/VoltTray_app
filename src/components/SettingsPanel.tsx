@@ -37,7 +37,9 @@ function Switch({
     >
       <span
         className={`inline-block h-3.5 w-3.5 rounded-full transition-transform ${
-          checked ? "translate-x-[18px] bg-[#22C55E]" : "translate-x-[2px] bg-[#64748B]"
+          checked
+            ? "translate-x-[18px] bg-[#22C55E]"
+            : "translate-x-[2px] bg-[#64748B]"
         }`}
       />
     </button>

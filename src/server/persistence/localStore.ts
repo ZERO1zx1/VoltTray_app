@@ -8,9 +8,10 @@ export interface PersistedLocalState {
 }
 
 function sanitizeSettings(raw?: Partial<AppSettings> | null): AppSettings {
-  const locale = raw?.locale === "en" || raw?.locale === "mn"
-    ? raw.locale
-    : INITIAL_SETTINGS.locale;
+  const locale =
+    raw?.locale === "en" || raw?.locale === "mn"
+      ? raw.locale
+      : INITIAL_SETTINGS.locale;
   const threshold: LowBatteryThreshold =
     raw?.lowBatteryThresholdPct === 10 ||
     raw?.lowBatteryThresholdPct === 15 ||

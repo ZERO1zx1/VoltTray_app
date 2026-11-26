@@ -143,4 +143,3 @@ export function componentGridClass(count: number): string {
   if (count === 2) return "grid-cols-2";
   return "grid-cols-3";
 }
-

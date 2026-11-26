@@ -80,18 +80,21 @@ test("missing and disconnected readings are not treated as 0% battery", () => {
     deviceSubtitle({ ...device, batteryAvailable: false }, "mn"),
     "Холбогдсон · Цэнэгийн мэдээлэлгүй",
   );
-  assert.equal(isDeviceLow({ ...device, chargingState: "charging" }, 20), false);
   assert.equal(
-    isDeviceLow({ ...device, batteryPct: 15, chargingState: "discharging" }, 20),
+    isDeviceLow({ ...device, chargingState: "charging" }, 20),
+    false,
+  );
+  assert.equal(
+    isDeviceLow(
+      { ...device, batteryPct: 15, chargingState: "discharging" },
+      20,
+    ),
     true,
   );
 });
 
 test("settingsEqual prevents unnecessary disk writes and formatLastUpdated handles locales", () => {
-  assert.equal(
-    settingsEqual(INITIAL_SETTINGS, { ...INITIAL_SETTINGS }),
-    true,
-  );
+  assert.equal(settingsEqual(INITIAL_SETTINGS, { ...INITIAL_SETTINGS }), true);
   assert.equal(
     settingsEqual(INITIAL_SETTINGS, {
       ...INITIAL_SETTINGS,

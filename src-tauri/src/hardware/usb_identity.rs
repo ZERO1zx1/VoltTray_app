@@ -2,11 +2,17 @@ use super::read_trimmed;
 use std::{collections::HashMap, path::Path};
 
 pub(super) fn interface(path: &Path) -> (u8, Option<&'static str>) {
-    let Ok(real) = path.canonicalize() else { return (255, None) };
+    let Ok(real) = path.canonicalize() else {
+        return (255, None);
+    };
     for parent in real.ancestors() {
         if parent.join("bInterfaceProtocol").exists() {
-            let number = u8::from_str_radix(&read_trimmed(&parent.join("bInterfaceNumber")), 16).unwrap_or(255);
-            let kind = boot_type(&read_trimmed(&parent.join("bInterfaceSubClass")), &read_trimmed(&parent.join("bInterfaceProtocol")));
+            let number = u8::from_str_radix(&read_trimmed(&parent.join("bInterfaceNumber")), 16)
+                .unwrap_or(255);
+            let kind = boot_type(
+                &read_trimmed(&parent.join("bInterfaceSubClass")),
+                &read_trimmed(&parent.join("bInterfaceProtocol")),
+            );
             return (number, kind);
         }
     }
@@ -14,14 +20,24 @@ pub(super) fn interface(path: &Path) -> (u8, Option<&'static str>) {
 }
 
 fn boot_type(subclass: &str, protocol: &str) -> Option<&'static str> {
-    if subclass != "01" { return None; }
-    match protocol { "01" => Some("keyboard"), "02" => Some("mouse"), _ => None }
+    if subclass != "01" {
+        return None;
+    }
+    match protocol {
+        "01" => Some("keyboard"),
+        "02" => Some("mouse"),
+        _ => None,
+    }
 }
 
 pub(super) fn lsusb_names() -> HashMap<String, String> {
     let mut names = HashMap::new();
-    let Ok(output) = std::process::Command::new("lsusb").output() else { return names };
-    if !output.status.success() { return names; }
+    let Ok(output) = std::process::Command::new("lsusb").output() else {
+        return names;
+    };
+    if !output.status.success() {
+        return names;
+    }
     for line in String::from_utf8_lossy(&output.stdout).lines() {
         if let Some((_, rest)) = line.split_once(" ID ") {
             if let Some((id, name)) = rest.split_once(' ') {

@@ -63,22 +63,40 @@ if (-not $Asset) {
 if (-not $Asset) {
   throw "No Windows installer (.exe or .msi) found in release '$Version'. Build locally with: npm run tauri:build"
 }
+$Checksums = $Release.assets | Where-Object { $_.name -eq "SHA256SUMS.txt" } | Select-Object -First 1
+if (-not $Checksums) {
+  throw "Release is missing SHA256SUMS.txt; nothing was installed."
+}
 
-$TempFile = Join-Path ([System.IO.Path]::GetTempPath()) $Asset.name
-Write-Log "Downloading $($Asset.name)..."
-Invoke-WebRequest -Uri $Asset.browser_download_url -OutFile $TempFile
+$TempDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
+New-Item -ItemType Directory -Path $TempDir | Out-Null
+$TempFile = Join-Path $TempDir ([System.IO.Path]::GetFileName($Asset.name))
 
 try {
+  Write-Log "Downloading $($Asset.name)..."
+  Invoke-WebRequest -Uri $Asset.browser_download_url -OutFile $TempFile
+  $ManifestPath = Join-Path $TempDir "SHA256SUMS.txt"
+  Invoke-WebRequest -Uri $Checksums.browser_download_url -OutFile $ManifestPath
+  $Pattern = '^([a-fA-F0-9]{64}) [ *]' + [regex]::Escape($Asset.name) + '$'
+  $Entries = @(Get-Content $ManifestPath | Where-Object { $_ -match $Pattern })
+  if ($Entries.Count -ne 1) { throw "Expected one checksum entry for $($Asset.name)." }
+  $Expected = $Entries[0].Substring(0, 64)
+  $Actual = (Get-FileHash $TempFile -Algorithm SHA256).Hash
+  if ($Expected -ne $Actual) { throw "SHA-256 verification failed; nothing was installed." }
+
   if ($Asset.name.EndsWith(".msi")) {
     Write-Log "Running MSI installer..."
-    Start-Process "msiexec.exe" -ArgumentList "/i `"$TempFile`" /passive" -Wait
+    $Process = Start-Process "msiexec.exe" -ArgumentList "/i `"$TempFile`" /passive" -Wait -PassThru
+    $SuccessCodes = @(0, 1641, 3010)
   } else {
     Write-Log "Running setup installer..."
-    Start-Process $TempFile -ArgumentList "/S" -Wait
+    $Process = Start-Process $TempFile -ArgumentList "/S" -Wait -PassThru
+    $SuccessCodes = @(0)
   }
+  if ($Process.ExitCode -notin $SuccessCodes) { throw "Installer failed with exit code $($Process.ExitCode)." }
   Write-Log "VoltTray installation complete."
 } finally {
-  if (Test-Path $TempFile) {
-    Remove-Item -Force $TempFile -ErrorAction SilentlyContinue
+  if (Test-Path $TempDir) {
+    Remove-Item -Recurse -Force $TempDir -ErrorAction SilentlyContinue
   }
 }

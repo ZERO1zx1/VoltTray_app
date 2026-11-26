@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VoltTray — Local-First Desktop Battery Monitor for Windows &amp; Linux</title>
+    <title>
+      VoltTray — Local-First Desktop Battery Monitor for Windows &amp; Linux
+    </title>
     <meta
       name="description"
       content="Read-only system tray battery monitor for laptop, Bluetooth, and 2.4GHz peripherals on Windows and Linux. Open source, zero telemetry."
@@ -29,11 +31,7 @@
         </nav>
 
         <div class="nav-actions">
-          <a
-            href="#install"
-            class="btn btn-primary btn-sm"
-            data-i18n="nav_cta"
-          >
+          <a href="#install" class="btn btn-primary btn-sm" data-i18n="nav_cta">
             Суулгах
           </a>
         </div>
@@ -51,8 +49,12 @@
                   Windows ба Linux · Tauri v2 + Rust · MIT Нээлттэй Эх
                 </p>
                 <div class="lang-switch" role="group" aria-label="Language">
-                  <button type="button" data-lang="mn" aria-pressed="true">MN</button>
-                  <button type="button" data-lang="en" aria-pressed="false">EN</button>
+                  <button type="button" data-lang="mn" aria-pressed="true">
+                    MN
+                  </button>
+                  <button type="button" data-lang="en" aria-pressed="false">
+                    EN
+                  </button>
                 </div>
               </div>
 
@@ -61,11 +63,18 @@
               </h1>
 
               <p class="hero-sub" data-i18n="hero_sub">
-                VoltTray нь таны зөөврийн компьютер, Bluetooth чихэвч болон 2.4GHz утасгүй хулганын бодит цэнэгийг системийн трэй дотроос харуулна—нэмэлт ачаалалгүй, гадагш өгөгдөл илгээхгүй, зөвхөн унших аюулгүй горимтой.
+                VoltTray нь таны зөөврийн компьютер, Bluetooth чихэвч болон
+                2.4GHz утасгүй хулганын бодит цэнэгийг системийн трэй дотроос
+                харуулна—нэмэлт ачаалалгүй, гадагш өгөгдөл илгээхгүй, зөвхөн
+                унших аюулгүй горимтой.
               </p>
 
               <div class="hero-cta">
-                <a href="#install" class="btn btn-primary" data-i18n="hero_cta_primary">
+                <a
+                  href="#install"
+                  class="btn btn-primary"
+                  data-i18n="hero_cta_primary"
+                >
                   Нэг командаар суулгах
                 </a>
                 <a
@@ -83,22 +92,53 @@
                 <div class="quick-bar-head">
                   <span data-i18n="quick_label">Шууд суулгах</span>
                   <div class="seg-group" role="tablist">
-                    <button type="button" class="seg-btn active" data-quick="linux">Linux</button>
-                    <button type="button" class="seg-btn" data-quick="windows">Windows</button>
+                    <button
+                      type="button"
+                      class="seg-btn active"
+                      data-quick="linux"
+                    >
+                      Linux
+                    </button>
+                    <button type="button" class="seg-btn" data-quick="windows">
+                      Windows
+                    </button>
                   </div>
                 </div>
                 <div class="quick-bar-cmd">
-                  <code id="quick-cmd">curl -fsSL https://raw.githubusercontent.com/ZERO1zx1/VoltTray_app/main/scripts/install.sh | bash</code>
-                  <button type="button" class="copy-btn" id="quick-copy" data-i18n="copy_btn">Хуулах</button>
+                  <code id="quick-cmd"
+                    >curl -fsSL
+                    https://raw.githubusercontent.com/ZERO1zx1/VoltTray_app/main/scripts/install.sh
+                    | bash</code
+                  >
+                  <button
+                    type="button"
+                    class="copy-btn"
+                    id="quick-copy"
+                    data-i18n="copy_btn"
+                  >
+                    Хуулах
+                  </button>
                 </div>
               </div>
             </div>
 
-            <aside class="widget-shell" aria-label="VoltTray desktop tray preview">
+            <aside
+              class="widget-shell"
+              aria-label="VoltTray desktop tray preview"
+            >
               <div class="widget-bar">
                 <span class="widget-title">
                   <span class="brand-mark" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
                       <path d="M11.2 2.5L4.5 11h5l-.7 6.5L15.5 9h-5l.7-6.5z" />
                     </svg>
                   </span>
@@ -108,18 +148,24 @@
               </div>
               <div class="widget-meta">
                 <span data-i18n="mock_ac">Цэнэглэгч залгагдсан</span>
-                <span class="mono-muted" data-i18n="mock_count">4 төхөөрөмж</span>
+                <span class="mono-muted" data-i18n="mock_count"
+                  >4 төхөөрөмж</span
+                >
               </div>
               <div class="widget-list">
                 <div class="device-card">
                   <div class="device-head">
-                    <span class="device-name" data-i18n="mock_sys">Компьютерын батарей</span>
+                    <span class="device-name" data-i18n="mock_sys"
+                      >Компьютерын батарей</span
+                    >
                     <span class="device-pct ok">84%</span>
                   </div>
                   <div class="device-sub" data-i18n="mock_sys_sub">
                     Систем · Цэнэглэж байна · Эрүүл мэнд 94%
                   </div>
-                  <div class="device-bar"><span class="bar-ok" style="width: 84%"></span></div>
+                  <div class="device-bar">
+                    <span class="bar-ok" style="width: 84%"></span>
+                  </div>
                 </div>
 
                 <div class="device-card">
@@ -130,7 +176,9 @@
                   <div class="device-sub" data-i18n="mock_mouse_sub">
                     2.4GHz · Батарейгаар · M220 HID
                   </div>
-                  <div class="device-bar"><span class="bar-ok" style="width: 68%"></span></div>
+                  <div class="device-bar">
+                    <span class="bar-ok" style="width: 68%"></span>
+                  </div>
                 </div>
 
                 <div class="device-card low">
@@ -141,7 +189,9 @@
                   <div class="device-sub" data-i18n="mock_pods_sub">
                     Bluetooth · Цэнэг бага · kAirPods
                   </div>
-                  <div class="device-bar"><span class="bar-low" style="width: 18%"></span></div>
+                  <div class="device-bar">
+                    <span class="bar-low" style="width: 18%"></span>
+                  </div>
                   <div class="comp-grid">
                     <div class="comp-cell">
                       <span data-i18n="comp_left">Зүүн</span>
@@ -190,7 +240,7 @@
             </div>
             <div>
               <dt>4</dt>
-              <dd data-i18n="m4">state.json доторх локал тохиргоо</dd>
+              <dd data-i18n="m4">volttray-state.json доторх локал тохиргоо</dd>
             </div>
           </dl>
         </div>
@@ -200,9 +250,13 @@
       <section id="desk" class="section">
         <div class="container">
           <div class="section-head">
-            <h2 data-i18n="desk_title">Ширээн дээрх бүх төхөөрөмжид нэг л цэвэр хянагч</h2>
+            <h2 data-i18n="desk_title">
+              Ширээн дээрх бүх төхөөрөмжид нэг л цэвэр хянагч
+            </h2>
             <p data-i18n="desk_sub">
-              Хулгана, гар, чихэвч бүрд 400 MB хүнд драйвер суулгахын оронд VoltTray үйлдлийн системийн үндсэн сувгаас бодит цэнэгийг шууд уншина.
+              Хулгана, гар, чихэвч бүрд 400 MB хүнд драйвер суулгахын оронд
+              VoltTray үйлдлийн системийн үндсэн сувгаас бодит цэнэгийг шууд
+              уншина.
             </p>
           </div>
 
@@ -219,22 +273,30 @@
               <div class="desk-item">
                 <strong data-i18n="d1_name">Компьютерын батарей</strong>
                 <span class="mono-sub">sysfs / Win32_Battery</span>
-                <span class="mono-val" data-i18n="d1_val">84% · Эрүүл мэнд 94%</span>
+                <span class="mono-val" data-i18n="d1_val"
+                  >84% · Эрүүл мэнд 94%</span
+                >
               </div>
               <div class="desk-item">
                 <strong data-i18n="d2_name">2.4GHz утасгүй хулгана</strong>
                 <span class="mono-sub">M220 HID (MI_02)</span>
-                <span class="mono-val" data-i18n="d2_val">68% · Батарейгаар</span>
+                <span class="mono-val" data-i18n="d2_val"
+                  >68% · Батарейгаар</span
+                >
               </div>
               <div class="desk-item">
                 <strong data-i18n="d3_name">AirPods ба чихэвч</strong>
                 <span class="mono-sub">kAirPods D-Bus / BLE</span>
-                <span class="mono-val" data-i18n="d3_val">Зүүн 18% · Баруун 24% · Кейс 72%</span>
+                <span class="mono-val" data-i18n="d3_val"
+                  >Зүүн 18% · Баруун 24% · Кейс 72%</span
+                >
               </div>
               <div class="desk-item">
                 <strong data-i18n="d4_name">Утастай гар</strong>
                 <span class="mono-sub">USB Boot HID</span>
-                <span class="mono-val" data-i18n="d4_val">— · Хуурамч 0% гаргахгүй</span>
+                <span class="mono-val" data-i18n="d4_val"
+                  >— · Хуурамч 0% гаргахгүй</span
+                >
               </div>
             </div>
           </div>
@@ -245,33 +307,87 @@
       <section id="architecture" class="section">
         <div class="container">
           <div class="section-head">
-            <h2 data-i18n="bento_title">Системийн жинхэнэ хэрэгсэл шиг бүтээгдсэн</h2>
+            <h2 data-i18n="bento_title">
+              Системийн жинхэнэ хэрэгсэл шиг бүтээгдсэн
+            </h2>
             <p data-i18n="bento_sub">
-              Архитектурын шийдэл бүр нам гүм найдвартай ажиллагаа, ил тод зөвшөөрөл, үнэн зөв уншилтад чиглэсэн.
+              Архитектурын шийдэл бүр нам гүм найдвартай ажиллагаа, ил тод
+              зөвшөөрөл, үнэн зөв уншилтад чиглэсэн.
             </p>
           </div>
 
           <div class="bento-grid">
             <article class="card span-7">
               <div>
-                <span class="card-index" data-i18n="c1_idx">01. Background хяналт</span>
-                <h3 data-i18n="c1_title">Босго орчимд давтан саад болохгүй мэдэгдэл</h3>
+                <span class="card-index" data-i18n="c1_idx"
+                  >01. Background хяналт</span
+                >
+                <h3 data-i18n="c1_title">
+                  Босго орчимд давтан саад болохгүй мэдэгдэл
+                </h3>
                 <p data-i18n="c1_body">
-                  Цонх хаалттай үед ч Rust трэй процесс цэнэгийг хянана. 20%-д хүрч анхааруулсны дараа цэнэг 25%-иас дээш (+5% гистерезис) өсөх эсвэл цэнэглэгч залгах хүртэл дахин давтахгүй.
+                  Цонх хаалттай үед ч Rust трэй процесс цэнэгийг хянана. 20%-д
+                  хүрч анхааруулсны дараа цэнэг 25%-иас дээш (+5% гистерезис)
+                  өсөх эсвэл цэнэглэгч залгах хүртэл дахин давтахгүй.
                 </p>
               </div>
               <div class="hyst-box">
                 <div class="hyst-labels">
-                  <span class="low" data-i18n="c1_trig">Анхааруулга &lt;= 20%</span>
-                  <span class="ok" data-i18n="c1_reset">Дахин идэвхжих &gt; 25% (+5%)</span>
+                  <span class="low" data-i18n="c1_trig"
+                    >Анхааруулга &lt;= 20%</span
+                  >
+                  <span class="ok" data-i18n="c1_reset"
+                    >Дахин идэвхжих &gt; 25% (+5%)</span
+                  >
                 </div>
-                <svg viewBox="0 0 480 86" class="hyst-svg" role="img" aria-label="Hysteresis alert curve">
-                  <rect x="0" y="24" width="480" height="24" fill="rgba(245, 158, 11, 0.08)" />
-                  <line x1="0" y1="24" x2="480" y2="24" stroke="rgba(34, 197, 94, 0.55)" stroke-dasharray="4 4" stroke-width="1" />
-                  <line x1="0" y1="48" x2="480" y2="48" stroke="rgba(239, 68, 68, 0.65)" stroke-dasharray="4 4" stroke-width="1" />
-                  <path d="M 10 14 L 110 28 L 165 56 L 230 34 L 275 52 L 365 14 L 465 14" fill="none" stroke="#E2E8F0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                <svg
+                  viewBox="0 0 480 86"
+                  class="hyst-svg"
+                  role="img"
+                  aria-label="Hysteresis alert curve"
+                >
+                  <rect
+                    x="0"
+                    y="24"
+                    width="480"
+                    height="24"
+                    fill="rgba(245, 158, 11, 0.08)"
+                  />
+                  <line
+                    x1="0"
+                    y1="24"
+                    x2="480"
+                    y2="24"
+                    stroke="rgba(34, 197, 94, 0.55)"
+                    stroke-dasharray="4 4"
+                    stroke-width="1"
+                  />
+                  <line
+                    x1="0"
+                    y1="48"
+                    x2="480"
+                    y2="48"
+                    stroke="rgba(239, 68, 68, 0.65)"
+                    stroke-dasharray="4 4"
+                    stroke-width="1"
+                  />
+                  <path
+                    d="M 10 14 L 110 28 L 165 56 L 230 34 L 275 52 L 365 14 L 465 14"
+                    fill="none"
+                    stroke="#E2E8F0"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
                   <circle cx="165" cy="56" r="5" fill="#EF4444" />
-                  <circle cx="275" cy="52" r="4" fill="#0B0F14" stroke="#94A3B8" stroke-width="2" />
+                  <circle
+                    cx="275"
+                    cy="52"
+                    r="4"
+                    fill="#0B0F14"
+                    stroke="#94A3B8"
+                    stroke-width="2"
+                  />
                   <circle cx="365" cy="14" r="5" fill="#22C55E" />
                 </svg>
               </div>
@@ -279,15 +395,23 @@
 
             <article class="card span-5">
               <div>
-                <span class="card-index" data-i18n="c2_idx">02. Зөвхөн унших горим</span>
-                <h3 data-i18n="c2_title">Firmware, LED, гарын оролтод хүрэхгүй</h3>
+                <span class="card-index" data-i18n="c2_idx"
+                  >02. Зөвхөн унших горим</span
+                >
+                <h3 data-i18n="c2_title">
+                  Firmware, LED, гарын оролтод хүрэхгүй
+                </h3>
                 <p data-i18n="c2_body">
-                  Linux udev дүрэм зөвхөн тухайн төхөөрөмжийн MI_02 телеметрийн сувагт хязгаарлагдсан — гарын hidraw төхөөрөмжид огт хандахгүй.
+                  Linux udev дүрэм зөвхөн тухайн төхөөрөмжийн MI_02 телеметрийн
+                  сувагт хязгаарлагдсан — гарын hidraw төхөөрөмжид огт
+                  хандахгүй.
                 </p>
               </div>
               <div class="audit-cols">
                 <div>
-                  <div class="audit-head ok" data-i18n="c2_reads">Зөвхөн уншина</div>
+                  <div class="audit-head ok" data-i18n="c2_reads">
+                    Зөвхөн уншина
+                  </div>
                   <ul>
                     <li>OS power_supply &amp; UPower</li>
                     <li>Win32_Battery &amp; WMI</li>
@@ -296,7 +420,9 @@
                   </ul>
                 </div>
                 <div>
-                  <div class="audit-head muted" data-i18n="c2_blocks">Хэзээ ч өөрчлөхгүй</div>
+                  <div class="audit-head muted" data-i18n="c2_blocks">
+                    Хэзээ ч өөрчлөхгүй
+                  </div>
                   <ul class="muted">
                     <li>DPI &amp; polling rate</li>
                     <li>RGB LED lighting</li>
@@ -309,10 +435,13 @@
 
             <article class="card span-5">
               <div>
-                <span class="card-index" data-i18n="c3_idx">03. Локал хадгалалт</span>
+                <span class="card-index" data-i18n="c3_idx"
+                  >03. Локал хадгалалт</span
+                >
                 <h3 data-i18n="c3_title">Ердөө 4 тохиргоо, үүлгүй</h3>
                 <p data-i18n="c3_body">
-                  Бүртгэл шаардахгүй, аналитик SDK байхгүй. Диск дээр зөвхөн 4 JSON талбар хадгалагдана.
+                  Бүртгэл шаардахгүй, аналитик SDK байхгүй. Диск дээр зөвхөн 4
+                  JSON талбар хадгалагдана.
                 </p>
               </div>
               <pre><code>{
@@ -328,13 +457,28 @@
             <article class="card span-7">
               <div class="card-head-row">
                 <div>
-                  <span class="card-index" data-i18n="c4_idx">04. Баталгаажсан эх сурвалжууд</span>
-                  <h3 data-i18n="c4_title">Эхлээд системийн сувгийг уншина, хувь зохиохгүй</h3>
+                  <span class="card-index" data-i18n="c4_idx"
+                    >04. Баталгаажсан эх сурвалжууд</span
+                  >
+                  <h3 data-i18n="c4_title">
+                    Эхлээд системийн сувгийг уншина, хувь зохиохгүй
+                  </h3>
                 </div>
                 <div class="seg-group" role="tablist">
-                  <button type="button" class="seg-btn active" data-filter="all" data-i18n="f_all">Бүгд</button>
-                  <button type="button" class="seg-btn" data-filter="linux">Linux</button>
-                  <button type="button" class="seg-btn" data-filter="windows">Windows</button>
+                  <button
+                    type="button"
+                    class="seg-btn active"
+                    data-filter="all"
+                    data-i18n="f_all"
+                  >
+                    Бүгд
+                  </button>
+                  <button type="button" class="seg-btn" data-filter="linux">
+                    Linux
+                  </button>
+                  <button type="button" class="seg-btn" data-filter="windows">
+                    Windows
+                  </button>
                 </div>
               </div>
 
@@ -351,22 +495,34 @@
                     <tr data-os="linux">
                       <td>Linux</td>
                       <td><code>/sys/class/power_supply &amp; UPower</code></td>
-                      <td data-i18n="row_linux_sys">Зөөврийн компьютерын батарей + эрүүл мэнд %, HID++, Bluetooth BAS</td>
+                      <td data-i18n="row_linux_sys">
+                        Зөөврийн компьютерын батарей + эрүүл мэнд %, HID++,
+                        Bluetooth BAS
+                      </td>
                     </tr>
                     <tr data-os="linux">
                       <td>Linux</td>
                       <td><code>OpenRazer &amp; HeadsetControl</code></td>
-                      <td data-i18n="row_linux_gaming">OpenRazer дэмжлэгтэй Razer төхөөрөмж ба USB утасгүй чихэвч</td>
+                      <td data-i18n="row_linux_gaming">
+                        OpenRazer дэмжлэгтэй Razer төхөөрөмж ба USB утасгүй
+                        чихэвч
+                      </td>
                     </tr>
                     <tr data-os="linux">
                       <td>Linux</td>
                       <td><code>kAirPods D-Bus &amp; M220 HID</code></td>
-                      <td data-i18n="row_linux_extra">AirPods зүүн/баруун/кейс хувь; Valkyrie VK M3 Lite 2.4GHz хулгана</td>
+                      <td data-i18n="row_linux_extra">
+                        AirPods зүүн/баруун/кейс хувь; Valkyrie VK M3 Lite
+                        2.4GHz хулгана
+                      </td>
                     </tr>
                     <tr data-os="windows">
                       <td>Windows</td>
                       <td><code>Win32_Battery &amp; PnP DEVPKEY</code></td>
-                      <td data-i18n="row_win">Компьютерын батарей + WMI эрүүл мэнд % ба Windows BLE/HID төхөөрөмж</td>
+                      <td data-i18n="row_win">
+                        Компьютерын батарей + WMI эрүүл мэнд % ба Windows
+                        BLE/HID төхөөрөмж
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -382,18 +538,35 @@
           <div>
             <h2 data-i18n="inst_title">Нэг командаар суулгах</h2>
             <p class="section-sub" data-i18n="inst_sub">
-              Үйлдлийн системээ сонгоод Tauri v2 десктоп аппыг авто-асаалттай хамт суулгаарай.
+              Үйлдлийн системээ сонгоод Tauri v2 десктоп аппыг авто-асаалттай
+              хамт суулгаарай.
             </p>
             <div class="card install-card">
               <div class="seg-group full" role="tablist">
-                <button type="button" class="seg-btn active" data-inst="linux">Linux (curl)</button>
-                <button type="button" class="seg-btn" data-inst="windows">Windows (PowerShell)</button>
-                <button type="button" class="seg-btn" data-inst="source">Node CLI</button>
+                <button type="button" class="seg-btn active" data-inst="linux">
+                  Linux (curl)
+                </button>
+                <button type="button" class="seg-btn" data-inst="windows">
+                  Windows (PowerShell)
+                </button>
+                <button type="button" class="seg-btn" data-inst="source">
+                  Node CLI
+                </button>
               </div>
               <pre><code id="inst-cmd">curl -fsSL https://raw.githubusercontent.com/ZERO1zx1/VoltTray_app/main/scripts/install.sh | bash</code></pre>
               <div class="inst-foot">
-                <span id="inst-note" data-i18n="inst_note_linux">~/.local/share/volttray руу AppImage хувилбарыг icon болон авто-асаалттай суулгана.</span>
-                <button type="button" class="copy-btn" id="inst-copy" data-i18n="copy_btn">Хуулах</button>
+                <span id="inst-note" data-i18n="inst_note_linux"
+                  >~/.local/share/volttray руу AppImage хувилбарыг icon болон
+                  авто-асаалттай суулгана.</span
+                >
+                <button
+                  type="button"
+                  class="copy-btn"
+                  id="inst-copy"
+                  data-i18n="copy_btn"
+                >
+                  Хуулах
+                </button>
               </div>
             </div>
           </div>
@@ -402,16 +575,34 @@
             <h2 data-i18n="faq_title">Түгээмэл техникийн асуултууд</h2>
             <div class="faq-box">
               <details open>
-                <summary data-i18n="q1">Яагаад утастай гар дээр 0% биш “—” гэж харагдаж байна вэ?</summary>
-                <p data-i18n="a1">Дотоод батарейгүй утастай төхөөрөмж цэнэгийн мэдээлэл дамжуулдаггүй. VoltTray үүнийг 0% гэж андуурахын оронд цэнэгийн мэдээлэлгүй гэдгийг үнэнээр харуулдаг.</p>
+                <summary data-i18n="q1">
+                  Яагаад утастай гар дээр 0% биш “—” гэж харагдаж байна вэ?
+                </summary>
+                <p data-i18n="a1">
+                  Дотоод батарейгүй утастай төхөөрөмж цэнэгийн мэдээлэл
+                  дамжуулдаггүй. VoltTray үүнийг 0% гэж андуурахын оронд
+                  цэнэгийн мэдээлэлгүй гэдгийг үнэнээр харуулдаг.
+                </p>
               </details>
               <details>
-                <summary data-i18n="q2">VoltTray 80% цэнэгийн хязгаар эсвэл RGB удирдаж чадах уу?</summary>
-                <p data-i18n="a2">Үгүй. VoltTray нь аюулгүй байдлын үүднээс зөвхөн унших горимтой. Цэнэгийн хязгаар болон LED тохиргоог системийн хэрэгслээр удирдана.</p>
+                <summary data-i18n="q2">
+                  VoltTray 80% цэнэгийн хязгаар эсвэл RGB удирдаж чадах уу?
+                </summary>
+                <p data-i18n="a2">
+                  Үгүй. VoltTray нь аюулгүй байдлын үүднээс зөвхөн унших
+                  горимтой. Цэнэгийн хязгаар болон LED тохиргоог системийн
+                  хэрэгслээр удирдана.
+                </p>
               </details>
               <details>
-                <summary data-i18n="q3">Linux M220 udev дүрэм яагаад зөвхөн interface 02 дээр таардаг вэ?</summary>
-                <p data-i18n="a3">Өргөн hidraw зөвшөөрөл нь гарын оролтыг нээх эрсдэлтэй тул 70-volttray-m220.rules зөвхөн 02-р интерфэйсэд хязгаарлагдсан.</p>
+                <summary data-i18n="q3">
+                  Linux M220 udev дүрэм яагаад зөвхөн interface 02 дээр таардаг
+                  вэ?
+                </summary>
+                <p data-i18n="a3">
+                  Өргөн hidraw зөвшөөрөл нь гарын оролтыг нээх эрсдэлтэй тул
+                  70-volttray-m220.rules зөвхөн 02-р интерфэйсэд хязгаарлагдсан.
+                </p>
               </details>
             </div>
           </div>
@@ -422,15 +613,20 @@
     <footer class="footer">
       <div class="container footer-inner">
         <span>VoltTray · MIT License</span>
-        <span data-i18n="footer_note">Локал десктоп хэрэгсэл · Windows ба Linux · Телеметригүй</span>
+        <span data-i18n="footer_note"
+          >Локал десктоп хэрэгсэл · Windows ба Linux · Телеметригүй</span
+        >
       </div>
     </footer>
 
     <script>
       const commands = {
-        linux: "curl -fsSL https://raw.githubusercontent.com/ZERO1zx1/VoltTray_app/main/scripts/install.sh | bash",
-        windows: "irm https://raw.githubusercontent.com/ZERO1zx1/VoltTray_app/main/scripts/install.ps1 | iex",
-        source: "git clone https://github.com/ZERO1zx1/VoltTray_app.git && cd VoltTray_app && npm install && npm run install:cli -- install --from-source --lang mn",
+        linux:
+          "curl -fsSL https://raw.githubusercontent.com/ZERO1zx1/VoltTray_app/main/scripts/install.sh | bash",
+        windows:
+          "irm https://raw.githubusercontent.com/ZERO1zx1/VoltTray_app/main/scripts/install.ps1 | iex",
+        source:
+          "git clone https://github.com/ZERO1zx1/VoltTray_app.git && cd VoltTray_app && npm ci && npm run install:cli -- install --from-source --lang mn",
       };
 
       const copy = {
@@ -442,7 +638,8 @@
           nav_cta: "Суулгах",
           hero_kicker: "Windows ба Linux · Tauri v2 + Rust · MIT Нээлттэй Эх",
           hero_title: "Бүх төхөөрөмжийн цэнэг трэй дээр нэг товшилтоор.",
-          hero_sub: "VoltTray нь таны зөөврийн компьютер, Bluetooth чихэвч болон 2.4GHz утасгүй хулганын бодит цэнэгийг системийн трэй дотроос харуулна—нэмэлт ачаалалгүй, гадагш өгөгдөл илгээхгүй, зөвхөн унших аюулгүй горимтой.",
+          hero_sub:
+            "VoltTray нь таны зөөврийн компьютер, Bluetooth чихэвч болон 2.4GHz утасгүй хулганын бодит цэнэгийг системийн трэй дотроос харуулна—нэмэлт ачаалалгүй, гадагш өгөгдөл илгээхгүй, зөвхөн унших аюулгүй горимтой.",
           hero_cta_primary: "Нэг командаар суулгах",
           hero_cta_secondary: "GitHub эх код харах",
           quick_label: "Шууд суулгах",
@@ -463,9 +660,10 @@
           m1: "Хүрээгүй трэй цонхны хэмжээ",
           m2: "Гадагш илгээх телеметри ба хүсэлт",
           m3: "Бага цэнэгийн гистерезис зурвас",
-          m4: "state.json доторх локал тохиргоо",
+          m4: "volttray-state.json доторх локал тохиргоо",
           desk_title: "Ширээн дээрх бүх төхөөрөмжид нэг л цэвэр хянагч",
-          desk_sub: "Хулгана, гар, чихэвч бүрд 400 MB хүнд драйвер суулгахын оронд VoltTray үйлдлийн системийн үндсэн сувгаас бодит цэнэгийг шууд уншина.",
+          desk_sub:
+            "Хулгана, гар, чихэвч бүрд 400 MB хүнд драйвер суулгахын оронд VoltTray үйлдлийн системийн үндсэн сувгаас бодит цэнэгийг шууд уншина.",
           d1_name: "Компьютерын батарей",
           d1_val: "84% · Эрүүл мэнд 94%",
           d2_name: "2.4GHz утасгүй хулгана",
@@ -475,35 +673,47 @@
           d4_name: "Утастай гар",
           d4_val: "— · Хуурамч 0% гаргахгүй",
           bento_title: "Системийн жинхэнэ хэрэгсэл шиг бүтээгдсэн",
-          bento_sub: "Архитектурын шийдэл бүр нам гүм найдвартай ажиллагаа, ил тод зөвшөөрөл, үнэн зөв уншилтад чиглэсэн.",
+          bento_sub:
+            "Архитектурын шийдэл бүр нам гүм найдвартай ажиллагаа, ил тод зөвшөөрөл, үнэн зөв уншилтад чиглэсэн.",
           c1_idx: "01. Background хяналт",
           c1_title: "Босго орчимд давтан саад болохгүй мэдэгдэл",
-          c1_body: "Цонх хаалттай үед ч Rust трэй процесс цэнэгийг хянана. 20%-д хүрч анхааруулсны дараа цэнэг 25%-иас дээш (+5% гистерезис) өсөх эсвэл цэнэглэгч залгах хүртэл дахин давтахгүй.",
+          c1_body:
+            "Цонх хаалттай үед ч Rust трэй процесс цэнэгийг хянана. 20%-д хүрч анхааруулсны дараа цэнэг 25%-иас дээш (+5% гистерезис) өсөх эсвэл цэнэглэгч залгах хүртэл дахин давтахгүй.",
           c1_trig: "Анхааруулга <= 20%",
           c1_reset: "Дахин идэвхжих > 25% (+5%)",
           c2_idx: "02. Зөвхөн унших горим",
           c2_title: "Firmware, LED, гарын оролтод хүрэхгүй",
-          c2_body: "Linux udev дүрэм зөвхөн тухайн төхөөрөмжийн MI_02 телеметрийн сувагт хязгаарлагдсан — гарын hidraw төхөөрөмжид огт хандахгүй.",
+          c2_body:
+            "Linux udev дүрэм зөвхөн тухайн төхөөрөмжийн MI_02 телеметрийн сувагт хязгаарлагдсан — гарын hidraw төхөөрөмжид огт хандахгүй.",
           c2_reads: "Зөвхөн уншина",
           c2_blocks: "Хэзээ ч өөрчлөхгүй",
           c3_idx: "03. Локал хадгалалт",
           c3_title: "Ердөө 4 тохиргоо, үүлгүй",
-          c3_body: "Бүртгэл шаардахгүй, аналитик SDK байхгүй. Диск дээр зөвхөн 4 JSON талбар хадгалагдана.",
+          c3_body:
+            "Бүртгэл шаардахгүй, аналитик SDK байхгүй. Диск дээр зөвхөн 4 JSON талбар хадгалагдана.",
           c4_idx: "04. Баталгаажсан эх сурвалжууд",
           c4_title: "Эхлээд системийн сувгийг уншина, хувь зохиохгүй",
           f_all: "Бүгд",
           th_os: "Систем",
           th_source: "Эх сурвалж",
           th_devices: "Дэмжих төхөөрөмж",
-          row_linux_sys: "Зөөврийн компьютерын батарей + эрүүл мэнд %, HID++, Bluetooth BAS",
-          row_linux_gaming: "OpenRazer дэмжлэгтэй Razer төхөөрөмж ба USB утасгүй чихэвч",
-          row_linux_extra: "AirPods зүүн/баруун/кейс хувь; Valkyrie VK M3 Lite 2.4GHz хулгана",
-          row_win: "Компьютерын батарей + WMI эрүүл мэнд % ба Windows BLE/HID төхөөрөмж",
+          row_linux_sys:
+            "Зөөврийн компьютерын батарей + эрүүл мэнд %, HID++, Bluetooth BAS",
+          row_linux_gaming:
+            "OpenRazer дэмжлэгтэй Razer төхөөрөмж ба USB утасгүй чихэвч",
+          row_linux_extra:
+            "AirPods зүүн/баруун/кейс хувь; Valkyrie VK M3 Lite 2.4GHz хулгана",
+          row_win:
+            "Компьютерын батарей + WMI эрүүл мэнд % ба Windows BLE/HID төхөөрөмж",
           inst_title: "Нэг командаар суулгах",
-          inst_sub: "Үйлдлийн системээ сонгоод Tauri v2 десктоп аппыг авто-асаалттай хамт суулгаарай.",
-          inst_note_linux: "~/.local/share/volttray руу AppImage хувилбарыг icon болон авто-асаалттай суулгана.",
-          inst_note_windows: "GitHub Releases-ээс албан ёсны Windows NSIS/MSI инсталлерыг татаж суулгана.",
-          inst_note_source: "Node.js 20+, Rust болон Tauri v2 сангууд шаардлагатай.",
+          inst_sub:
+            "Үйлдлийн системээ сонгоод Tauri v2 десктоп аппыг авто-асаалттай хамт суулгаарай.",
+          inst_note_linux:
+            "~/.local/share/volttray руу AppImage хувилбарыг icon болон авто-асаалттай суулгана.",
+          inst_note_windows:
+            "GitHub Releases-ээс албан ёсны Windows NSIS/MSI инсталлерыг татаж суулгана.",
+          inst_note_source:
+            "Node.js 20.19+ эсвэл 22.12+, Rust болон Tauri v2 сангууд шаардлагатай.",
           faq_title: "Түгээмэл техникийн асуултууд",
           q1: "Яагаад утастай гар дээр 0% биш “—” гэж харагдаж байна вэ?",
           a1: "Дотоод батарейгүй утастай төхөөрөмж цэнэгийн мэдээлэл дамжуулдаггүй. VoltTray үүнийг 0% гэж андуурахын оронд цэнэгийн мэдээлэлгүй гэдгийг үнэнээр харуулдаг.",
@@ -511,7 +721,8 @@
           a2: "Үгүй. VoltTray нь аюулгүй байдлын үүднээс зөвхөн унших горимтой. Цэнэгийн хязгаар болон LED тохиргоог системийн хэрэгслээр удирдана.",
           q3: "Linux M220 udev дүрэм яагаад зөвхөн interface 02 дээр таардаг вэ?",
           a3: "Өргөн hidraw зөвшөөрөл нь гарын оролтыг нээх эрсдэлтэй тул 70-volttray-m220.rules зөвхөн 02-р интерфэйсэд хязгаарлагдсан.",
-          footer_note: "Локал десктоп хэрэгсэл · Windows ба Linux · Телеметригүй",
+          footer_note:
+            "Локал десктоп хэрэгсэл · Windows ба Linux · Телеметригүй",
         },
         en: {
           nav_desk: "Hardware",
@@ -521,7 +732,8 @@
           nav_cta: "Install",
           hero_kicker: "Windows & Linux · Tauri v2 + Rust · MIT Open Source",
           hero_title: "Every peripheral battery, one calm tray click away.",
-          hero_sub: "VoltTray lives quietly in your system tray and reads real battery levels from your laptop, Bluetooth earbuds, and 2.4GHz wireless mouse—with zero bloat, zero outbound telemetry, and strict read-only safety.",
+          hero_sub:
+            "VoltTray lives quietly in your system tray and reads real battery levels from your laptop, Bluetooth earbuds, and 2.4GHz wireless mouse—with zero bloat, zero outbound telemetry, and strict read-only safety.",
           hero_cta_primary: "Install in One Command",
           hero_cta_secondary: "View Source on GitHub",
           quick_label: "Quick install",
@@ -542,9 +754,10 @@
           m1: "Frameless tray popup geometry",
           m2: "Outbound telemetry or cloud calls",
           m3: "Low-battery alert hysteresis band",
-          m4: "Local settings saved in state.json",
+          m4: "Local settings saved in volttray-state.json",
           desk_title: "One quiet readout for every device on your desk",
-          desk_sub: "Instead of running separate 400 MB vendor suites for your mouse, keyboard, and audio, VoltTray reads native OS power interfaces directly.",
+          desk_sub:
+            "Instead of running separate 400 MB vendor suites for your mouse, keyboard, and audio, VoltTray reads native OS power interfaces directly.",
           d1_name: "System Battery",
           d1_val: "84% · Health 94%",
           d2_name: "2.4GHz Wireless Mouse",
@@ -554,35 +767,47 @@
           d4_name: "Wired Keyboards",
           d4_val: "— · Honest no-telemetry",
           bento_title: "Engineered like a native system utility",
-          bento_sub: "Every architectural choice prioritizes quiet reliability, transparent permissions, and honest readings.",
+          bento_sub:
+            "Every architectural choice prioritizes quiet reliability, transparent permissions, and honest readings.",
           c1_idx: "01. Background daemon",
           c1_title: "Alerts that never spam at the threshold",
-          c1_body: "Battery checks run inside the Rust tray daemon even when the popup is hidden. Once triggered at 20%, alerts stay muted until battery rises above 25% (+5% hysteresis) or connects to power.",
+          c1_body:
+            "Battery checks run inside the Rust tray daemon even when the popup is hidden. Once triggered at 20%, alerts stay muted until battery rises above 25% (+5% hysteresis) or connects to power.",
           c1_trig: "Alert triggers <= 20%",
           c1_reset: "Resets above 25% (+5%)",
           c2_idx: "02. Strict read-only",
           c2_title: "Zero firmware, LED, or input writes",
-          c2_body: "Linux udev rules are strictly scoped to vendor telemetry interface MI_02—never broad keyboard hidraw nodes.",
+          c2_body:
+            "Linux udev rules are strictly scoped to vendor telemetry interface MI_02—never broad keyboard hidraw nodes.",
           c2_reads: "Reads only",
           c2_blocks: "Never modifies",
           c3_idx: "03. Local-first state",
           c3_title: "Four preferences, zero cloud",
-          c3_body: "No accounts, no analytics SDKs. Only four local JSON preferences are stored on disk.",
+          c3_body:
+            "No accounts, no analytics SDKs. Only four local JSON preferences are stored on disk.",
           c4_idx: "04. Verified hardware providers",
           c4_title: "Native OS interfaces first, zero guessed percentages",
           f_all: "All",
           th_os: "Platform",
           th_source: "Data Source",
           th_devices: "Devices Covered",
-          row_linux_sys: "Laptop battery + health %, HID++ mice/keyboards, Bluetooth BAS",
-          row_linux_gaming: "Supported Razer peripherals and USB wireless headsets",
-          row_linux_extra: "AirPods Left/Right/Case levels; Valkyrie VK M3 Lite 2.4GHz mouse",
-          row_win: "Laptop battery + WMI design health % and Windows BLE/HID devices",
+          row_linux_sys:
+            "Laptop battery + health %, HID++ mice/keyboards, Bluetooth BAS",
+          row_linux_gaming:
+            "Supported Razer peripherals and USB wireless headsets",
+          row_linux_extra:
+            "AirPods Left/Right/Case levels; Valkyrie VK M3 Lite 2.4GHz mouse",
+          row_win:
+            "Laptop battery + WMI design health % and Windows BLE/HID devices",
           inst_title: "Install in one command",
-          inst_sub: "Choose your platform to install the native Tauri v2 desktop app with system tray auto-start.",
-          inst_note_linux: "Installs the AppImage release into ~/.local/share/volttray with icon and XDG autostart.",
-          inst_note_windows: "Downloads the official Windows NSIS/MSI installer from GitHub Releases.",
-          inst_note_source: "Requires Node.js 20+, Rust, and Tauri v2 system libraries.",
+          inst_sub:
+            "Choose your platform to install the native Tauri v2 desktop app with system tray auto-start.",
+          inst_note_linux:
+            "Installs the AppImage release into ~/.local/share/volttray with icon and XDG autostart.",
+          inst_note_windows:
+            "Downloads the official Windows NSIS/MSI installer from GitHub Releases.",
+          inst_note_source:
+            "Requires Node.js 20.19+ or 22.12+, Rust, and Tauri v2 system libraries.",
           faq_title: "Common engineering questions",
           q1: "Why does my wired keyboard show “—” instead of 0%?",
           a1: "Wired devices without a battery do not report telemetry. VoltTray explicitly marks them as connected with no battery reading rather than faking 0%.",
@@ -590,7 +815,8 @@
           a2: "No. VoltTray is strictly read-only by architecture. Charge thresholds and LED settings stay under your OS or firmware controls.",
           q3: "Why does the Linux M220 udev rule only match interface 02?",
           a3: "Broad hidraw permissions expose keyboard input streams. Scoping 70-volttray-m220.rules strictly to interface 02 allows battery reads while keeping input locked down.",
-          footer_note: "Local-first desktop utility · Windows & Linux · Zero Telemetry",
+          footer_note:
+            "Local-first desktop utility · Windows & Linux · Zero Telemetry",
         },
       };
 
@@ -607,9 +833,11 @@
         btn.addEventListener("click", () => {
           lang = btn.dataset.lang;
           document.documentElement.lang = lang;
-          document.querySelectorAll("[data-lang]").forEach((b) =>
-            b.setAttribute("aria-pressed", String(b.dataset.lang === lang)),
-          );
+          document
+            .querySelectorAll("[data-lang]")
+            .forEach((b) =>
+              b.setAttribute("aria-pressed", String(b.dataset.lang === lang)),
+            );
           document.querySelectorAll("[data-i18n]").forEach((el) => {
             const val = copy[lang][el.dataset.i18n];
             if (val) el.textContent = val;
@@ -620,18 +848,24 @@
 
       document.querySelectorAll("[data-quick]").forEach((btn) => {
         btn.addEventListener("click", () => {
-          document.querySelectorAll("[data-quick]").forEach((b) => b.classList.remove("active"));
+          document
+            .querySelectorAll("[data-quick]")
+            .forEach((b) => b.classList.remove("active"));
           btn.classList.add("active");
-          document.getElementById("quick-cmd").textContent = commands[btn.dataset.quick];
+          document.getElementById("quick-cmd").textContent =
+            commands[btn.dataset.quick];
         });
       });
 
       document.querySelectorAll("[data-inst]").forEach((btn) => {
         btn.addEventListener("click", () => {
           activeInst = btn.dataset.inst;
-          document.querySelectorAll("[data-inst]").forEach((b) => b.classList.remove("active"));
+          document
+            .querySelectorAll("[data-inst]")
+            .forEach((b) => b.classList.remove("active"));
           btn.classList.add("active");
-          document.getElementById("inst-cmd").textContent = commands[activeInst];
+          document.getElementById("inst-cmd").textContent =
+            commands[activeInst];
           syncInstNote();
         });
       });
@@ -639,10 +873,13 @@
       document.querySelectorAll("[data-filter]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const target = btn.dataset.filter;
-          document.querySelectorAll("[data-filter]").forEach((b) => b.classList.remove("active"));
+          document
+            .querySelectorAll("[data-filter]")
+            .forEach((b) => b.classList.remove("active"));
           btn.classList.add("active");
           document.querySelectorAll("tbody tr[data-os]").forEach((row) => {
-            row.style.display = target === "all" || row.dataset.os === target ? "" : "none";
+            row.style.display =
+              target === "all" || row.dataset.os === target ? "" : "none";
           });
         });
       });
@@ -651,9 +888,13 @@
         const btn = document.getElementById(btnId);
         btn.addEventListener("click", async () => {
           const text = document.getElementById(codeId).textContent;
-          try { await navigator.clipboard.writeText(text); } catch {}
+          try {
+            await navigator.clipboard.writeText(text);
+          } catch {}
           btn.textContent = copy[lang].copied;
-          setTimeout(() => { btn.textContent = copy[lang].copy_btn; }, 1800);
+          setTimeout(() => {
+            btn.textContent = copy[lang].copy_btn;
+          }, 1800);
         });
       }
       bindCopy("quick-copy", "quick-cmd");

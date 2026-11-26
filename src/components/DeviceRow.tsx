@@ -82,7 +82,9 @@ export function DeviceRow({
   const readable = hasBatteryReading(device);
   const low = isDeviceLow(device, thresholdPct);
   const tone = levelTone(device, readable, low);
-  const pct = readable ? Math.max(0, Math.min(100, Math.round(device.batteryPct))) : 0;
+  const pct = readable
+    ? Math.max(0, Math.min(100, Math.round(device.batteryPct)))
+    : 0;
   const connText = connectionBadge(device, locale);
   const statusText = deviceSubtitle(device, locale);
   const isCharging = device.chargingState === "charging";
@@ -181,7 +183,10 @@ export function DeviceRow({
               className={`mb-2.5 grid ${componentGridClass(device.batteryComponents.length)} gap-1.5`}
             >
               {device.batteryComponents.map((comp) => {
-                const compPct = Math.max(0, Math.min(100, Math.round(comp.batteryPct)));
+                const compPct = Math.max(
+                  0,
+                  Math.min(100, Math.round(comp.batteryPct)),
+                );
                 const compLow = !comp.charging && compPct <= thresholdPct;
                 return (
                   <div
@@ -217,7 +222,9 @@ export function DeviceRow({
           <dl className="space-y-1">
             <div className="flex items-center justify-between gap-3">
               <dt className="text-[#94A3B8]">{dict.connectionLabel}</dt>
-              <dd className="font-mono text-[11px] text-[#E2E8F0]">{connText}</dd>
+              <dd className="font-mono text-[11px] text-[#E2E8F0]">
+                {connText}
+              </dd>
             </div>
             {device.batterySource && (
               <div className="flex items-center justify-between gap-3">

@@ -1,0 +1,42 @@
+name: Bug report
+description: Report a reproducible VoltTray problem.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: VoltTray version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system and version
+    validations:
+      required: true
+  - type: input
+    id: desktop
+    attributes:
+      label: Desktop environment and session
+      description: "For Linux, include the desktop environment and Wayland or X11."
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: volttray doctor output
+      render: text
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include the expected and observed result.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or screenshots
+      description: Remove serial numbers, Bluetooth addresses, and other personal data before posting.

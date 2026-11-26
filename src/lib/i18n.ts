@@ -119,7 +119,8 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
       connectionLabel: "Connection",
       sourceLabel: "Source",
       healthLabel: "Battery health",
-      healthNote: "Read-only monitor · Charge limits are managed by OS settings.",
+      healthNote:
+        "Read-only monitor · Charge limits are managed by OS settings.",
       componentsAria: "Component battery levels",
       components: {
         left: "Left",
