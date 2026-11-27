@@ -23,3 +23,11 @@ VoltTray reports battery data only when a supported system interface returns a v
 6. Update this matrix and add setup or protocol notes under <code>docs/</code>.
 
 Do not submit device serial numbers, Bluetooth addresses, or other personal identifiers in a public issue unless they have been removed or anonymized.
+
+## Mouse compatibility
+
+Detection and battery telemetry are separate capabilities. VoltTray does not require a known mouse brand when the OS identifies its input class. Linux USB discovery uses HID boot protocol or kernel relative X/Y capabilities; Windows includes present Mouse-class devices even without a battery property.
+
+Battery percentages still require valid sysfs/UPower, OpenRazer, Windows PnP, or a supported model-specific response. Proprietary receivers that expose no battery telemetry remain unavailable, not zero percent. M220 is one optional adapter, not a universal mouse protocol. Wired and wireless receivers cannot always be distinguished by OS metadata.
+
+These paths are covered by automated checks; this is not a claim that every mouse model has been physically tested. New proprietary adapters need documented protocols and device fixtures before being listed as supported.
